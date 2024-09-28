@@ -1,0 +1,25 @@
+sequenceDiagram
+
+participant App as Application
+participant TCB as Task Control Block
+participant EH as Error Handling
+participant EVT as Event
+participant INT as Interrupt
+participant SWTMR as Software Timer
+participant MUTEX as Mutex
+participant Q as Queue
+participant SEM as Semaphore
+participant RRB as Ring Buffer
+participant STK as Stack Info
+
+App->>TCB: Create Task
+TCB->>EH: Register Error Handler
+EH->>EVT: Initialize Event
+EVT->>INT: Configure Interrupt
+INT->>SWTMR: Manage Software Timers
+SWTMR->>MUTEX: Acquire Mutex for Synchronization
+MUTEX->>Q: Manage Queue Operations
+Q->>SEM: Signal Semaphores
+SEM->>RRB: Read/Write to Ring Buffer
+RRB->>STK: Update Stack Information
+

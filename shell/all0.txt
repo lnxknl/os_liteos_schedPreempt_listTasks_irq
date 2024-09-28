@@ -1,0 +1,4463 @@
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Dmesg Module Private Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_DMESG_PRI_H
+#define _HWLITEOS_SHELL_DMESG_PRI_H
+
+#ifdef LOSCFG_SHELL_DMESG
+#include "dmesg.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+/*
+ * The dmesg buffer is start with this info structure, then the log.
+ */
+typedef struct {
+    UINT32 logSize; /* The size of log in buffer */
+    UINT32 logHead; /* The index of the first log data. Data_out_flag */
+    UINT32 logTail; /* The index where to write, write in and plus one. Data_it_flag */
+    CHAR   *logBuf; /* The log buffer addr */
+} DmesgInfo;
+
+extern UINT32 OsDmesgInit(VOID);
+extern UINT32 OsDmesgLvGet(VOID);
+extern UINT32 OsCheckConsoleLock(VOID);
+extern UINT32 OsCheckUartLock(VOID);
+extern VOID OsLogShow(VOID);
+extern UINT32 OsLogRecordStr(const CHAR *str, UINT32 len);
+extern INT32 OsLogMemcpyRecord(const CHAR *buf, UINT32 logLen);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+#endif
+#endif /* _HWLITEOS_SHELL_DMESG_PRI_H */
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Command Parse Implementation Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_SHCMDPARSE_H
+#define _HWLITEOS_SHELL_SHCMDPARSE_H
+
+#include "string.h"
+#include "show.h"
+#include "los_base.h"
+
+#ifdef  __cplusplus
+#if  __cplusplus
+extern "C" {
+#endif
+#endif
+
+#define CMD_PARSED_RETCODE_BASE            LOS_OK
+#define CMD_PARSED_RETCODE_TYPE_INVALID    (CMD_PARSED_RETCODE_BASE + 1)
+#define CMD_PARSED_RETCODE_PARAM_OVERTOP   (CMD_PARSED_RETCODE_BASE + 3)
+#define CMD_PARSED_RETCODE_CMDKEY_NOTFOUND (CMD_PARSED_RETCODE_BASE + 4)
+
+typedef UINT32 (*FUNC_ONE_TOKEN)(VOID *ctx, UINT32 index, CHAR *token);
+
+/*
+ * Description: the info struct after cmd parser
+ */
+typedef struct {
+    UINT32 paramCnt;                /* count of para */
+    CmdType cmdType;                /* cmd type, judge cmd keyword */
+    CHAR cmdKeyword[CMD_KEY_LEN];   /* cmd keyword str */
+    CHAR *paramArray[CMD_MAX_PARAS];
+} CmdParsed;
+
+extern UINT32 OsCmdParse(CHAR *cmdStr, CmdParsed *cmdParsed);
+extern CHAR *OsCmdParseStrdup(const CHAR *str);
+extern UINT32 OsCmdParseOneToken(CmdParsed *cmdParsed, UINT32 index, const CHAR *token);
+extern UINT32 OsCmdTokenSplit(CHAR *cmdStr, CHAR split, CmdParsed *cmdParsed);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif
+
+#endif /* _HWLITEOS_SHELL_SHCMDPARSE_H */
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Implementation Private Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_PRI_H
+#define _HWLITEOS_SHELL_PRI_H
+
+#include "los_config.h"
+#include "shcmd.h"
+#include "shell.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#ifdef LOSCFG_SHELL_LK
+extern VOID OsLkLoggerInit(const CHAR *str);
+#endif
+
+extern CmdItem g_shellcmd[];
+extern CmdItem g_shellcmdEnd;
+
+extern UINT32 ShellEntry(VOID *param);
+extern UINT32 ShellTask(VOID *param);
+
+extern UINT32 ShellStdinLoop(ShellCB *shellCB);
+#ifdef LOSCFG_EXC_INTERACTION
+BOOL IsShellTask(UINT32 taskId);
+#endif
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _HWLITEOS_SHELL_PRI_H *//* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Message Implementation Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_SHMSG_H
+#define _HWLITEOS_SHELL_SHMSG_H
+
+#include "shell.h"
+#include "console.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+extern UINT32 ShellMsgParse(const VOID *msg);
+extern UINT32 ShellTaskInit(ShellCB *shellCB);
+extern VOID ShellTaskDeinit(ShellCB *shellCB);
+extern UINT32 ShellEntryInit(ShellCB *shellCB);
+extern VOID ShellCmdLineParse(CHAR c, pf_OUTPUT outputFunc, ShellCB *shellCB);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _HWLITEOS_SHELL_SHMSG_H *//* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell lk Parse Implementation Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_LK_H
+#define _HWLITEOS_SHELL_LK_H
+
+/**
+ * @defgroup shell_lk lk
+ * @ingroup shell
+ */
+#include "stdarg.h"
+#include "los_typedef.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+/**
+ * @ingroup shell_lk
+ * define sys default print level
+ * 0: TRACE_EMG 1: TRACE_COMMOM 2: TRACE_ERROR 3: TRACE_WARN 4: TRACE_INFO 5: TRACE_DEBUG
+ */
+#define TRACE_DEFAULT TRACE_ERROR
+
+/**
+ * @ingroup shell_lk
+ * @brief Define an printf handling function hook.
+ *
+ * @par Description:
+ * This API is used to define the printf handling function hook.
+ * @attention None.
+ *
+ * @param  level    [IN] print level.
+ * @param  func     [IN] means which func calls print func.
+ * @param  line     [IN] means which line calls print func.
+ * @param  fmt      [IN] other information by user define.
+ * @param  ap       [IN] the para list.
+ *
+ * @retval None.
+ *
+ * @par Dependency:
+ * shell_lk.h: the header file that contains the API declaration.
+ * @see None.
+ * @since Huawei LiteOS V200R001C00
+ */
+typedef VOID (*LK_FUNC)(INT32 level, const CHAR *func, INT32 line, const CHAR *fmt, va_list ap);
+
+/**
+ * @ingroup shell_lk
+ * @brief print log.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to LK print function.</li>
+ * </ul>
+ *
+ * @param  level    [IN] print level.
+ * @param  func     [IN] means which func calls print func.
+ * @param  line     [IN] means which line calls print func.
+ * @param  fmt      [IN] other information by user define
+ *
+ * @retval NONE
+ * @par Dependency:
+ * <ul><li>shell_lk.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R001C00
+ */
+extern VOID LOS_LkPrint(INT32 level, const CHAR *func, INT32 line, const CHAR *fmt, ...);
+
+/**
+ * @ingroup shell_lk
+ * @brief register print func.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to registe a hook function to LK.</li>
+ * </ul>
+ *
+ * @param  LK_FUNC  [IN] the print func.
+ *
+ * @retval NONE
+ * @par Dependency:
+ * <ul><li>shell_lk.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R001C00
+ */
+extern VOID LOS_LkRegHook(LK_FUNC hook);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _HWLITEOS_SHELL_LK_H *//* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Show Implementation Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_SHOW_H
+#define _HWLITEOS_SHELL_SHOW_H
+
+#include "stdarg.h"
+#include "los_sys.h"
+#include "shell.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+extern CHAR *OsShellGetWorkingDirectory(VOID);
+extern UINT32 OsShellInit(INT32 consoleId);
+extern INT32 OsShellDeinit(INT32 consoleId);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _HWLITEOS_SHELL_SHOW_H *//* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
+ * Description: MagicKey Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2019-02-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _MAGICKEY_H
+#define _MAGICKEY_H
+
+#include "los_exc.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+typedef struct {
+    VOID (*opHandler)(VOID);
+    CHAR *helpMsg;
+    CHAR magicKey;
+} MagicKeyOp;
+
+extern INT32 CheckMagicKey(CHAR key);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Command Module Implementation Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_SHCMD_H
+#define _HWLITEOS_SHELL_SHCMD_H
+
+#include "string.h"
+#include "stdlib.h"
+#include "los_base.h"
+#include "los_list.h"
+#include "los_tables.h"
+#include "console.h"
+#include "shcmdparse.h"
+#include "show.h"
+
+#ifdef  __cplusplus
+#if  __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+typedef BOOL (*CmdVerifyTransID)(UINT32 transId);
+
+typedef struct {
+    CmdType cmdType;
+    CHAR *cmdKey;
+    UINT32 paraNum;
+    CmdCallBackFunc cmdHook;
+} CmdItem;
+
+typedef struct {
+    LOS_DL_LIST list;
+    CmdItem *cmd;
+} CmdItemNode;
+
+/* global info for shell module */
+typedef struct {
+    CmdItemNode cmdList;
+    UINT32 listNum;
+    UINT32 initMagicFlag;
+    UINT32 muxLock;
+    CmdVerifyTransID transIdHook;
+} CmdModInfo;
+
+typedef struct {
+    UINT32 count;
+    LOS_DL_LIST list;
+    CHAR cmdString[0];
+} CmdKeyLink;
+
+#define SHELLCMD_ENTRY(l, cmdType, cmdKey, paraNum, cmdHook)    \
+    CmdItem l LOS_HAL_TABLE_ENTRY(shellcmd) = {                 \
+        cmdType,                                                \
+        cmdKey,                                                 \
+        paraNum,                                                \
+        cmdHook                                                 \
+    }
+
+#define NEED_NEW_LINE(timesPrint, lineCap) ((timesPrint) % (lineCap) == 0)
+#define SCREEN_IS_FULL(timesPrint, lineCap) ((timesPrint) >= ((lineCap) * DEFAULT_SCREEN_HEIGHT))
+
+extern UINT32 OsCmdInit(VOID);
+extern CmdModInfo *OsCmdInfoGet(VOID);
+extern UINT32 OsCmdExec(CmdParsed *cmdParsed, CHAR *cmdStr);
+extern UINT32 OsCmdKeyShift(const CHAR *cmdKey, CHAR *cmdOut, UINT32 size);
+extern INT32 OsTabCompletion(CHAR *cmdKey, UINT32 *len);
+extern VOID OsShellCmdPush(const CHAR *string, CmdKeyLink *cmdKeyLink);
+extern VOID OsShellHistoryShow(UINT32 value, ShellCB *shellCB);
+extern UINT32 OsShellKeyInit(ShellCB *shellCB);
+extern VOID OsShellKeyDeInit(const ShellCB *shellCB);
+extern VOID OsShellKeyLinkDeInit(CmdKeyLink *cmdKeyLink);
+extern UINT32 OsShellSysCmdRegister(VOID);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif
+
+#endif /* _HWLITEOS_SHELL_SHCMD_H */
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Dmesg Module Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_DMESG_H
+#define _HWLITEOS_SHELL_DMESG_H
+#include "los_config.h"
+#ifdef LOSCFG_SHELL_DMESG
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+/**
+ * @ingroup dmesg
+ * Defalut dmesg buffer size.
+ */
+#define KERNEL_LOG_BUF_SIZE (8 * 1024)
+
+/**
+ * @ingroup dmesg
+ * @brief Set dmesg buffer.
+ *
+ * @par Description:
+ * This API is used to set dmesg buffer to memory-assigned, or just change the buffer size.
+ *
+ * @attention
+ * <ul>
+ * <li>If the addr is NULL, this function will only change the buffer size.</li>
+ * </ul>
+ *
+ * @param  addr     [IN] Type #VOID* The addr of memory space to set.
+ * @param  size     [IN] Type #UINT32 The dmesg buffer size to set, depend on the app user, should be a valid value,
+ *                                    otherwise system will crash.
+ *
+ * @retval #LOS_NOK Set dmesg buffer fail.
+ * @retval #LOS_OK  Set dmesg buffer success.
+ * @par Dependency:
+ * <ul><li>dmesg.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_DmesgMemSet
+ * @since Huawei LiteOS V200R001C10
+ */
+extern UINT32 LOS_DmesgMemSet(VOID *addr, UINT32 size);
+
+/**
+ * @ingroup dmesg
+ * @brief Read log from dmesg buffer.
+ *
+ * @par Description:
+ * This API is used to get log from dmesg buffer in core and copy to the point buffer.
+ *
+ * @attention
+ * <ul>
+ * <li>Length of log been read may be less than the len if log in dmesg buffer is not enough.</li>
+ * </ul>
+ *
+ * @param  buf  [IN] Type #CHAR* The buffer expected copy to.
+ * @param  len  [IN] Type #UINT32 The maximum number of bytes that can be accommodated in the buf.
+ *
+ * @retval #-1      Read log from dmesg buffer fail.
+ * @retval #0       Nothing has been read.
+ * @retval #INT32   The length of log has been read.
+ * @par Dependency:
+ * <ul><li>dmesg.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_DmesgRead
+ * @since Huawei LiteOS V200R001C10
+ */
+extern INT32 LOS_DmesgRead(CHAR *buf, UINT32 len);
+
+/**
+ * @ingroup dmesg
+ * @brief Clear dmesg log.
+ *
+ * @par Description:
+ * This API is used to clear dmesg log.
+ *
+ * @attention None.
+ *
+ * @param  None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>dmesg.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_DmesgClear
+ * @since Huawei LiteOS V200R001C10
+ */
+extern VOID LOS_DmesgClear(VOID);
+
+/**
+ * @ingroup dmesg
+ * @brief Copy log to file.
+ *
+ * @par Description:
+ * This API is used to copy all log from dmesg buffer and write it to the file.
+ *
+ * @attention
+ * <ul>
+ * <li>Files rely on file system, the file system of filename dependent must be already mounted.</li>
+ * </ul>
+ *
+ * @param  filename   [IN] Type #CHAR* The buffer expected copy to.
+ *
+ * @retval #-1      Copy log to file fail.
+ * @retval #0       Maybe there is no log in the buffer.
+ * @retval #INT32   The length of log has been written to file.
+ * @par Dependency:
+ * <ul><li>dmesg.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_DmesgToFile
+ * @since Huawei LiteOS V200R001C10
+ */
+extern INT32 LOS_DmesgToFile(CHAR *filename);
+
+/**
+ * @ingroup dmesg
+ * @brief Set the dmesg level
+ *
+ * @par Description:
+ * This API is used to set the level of log that want to stored in dmesg buffer.
+ *
+ * @attention
+ * <ul>
+ * <li>It would be useless if the level is less than print level.</li>
+ * </ul>
+ *
+ * @param  level   [IN] Type #UINT32 The level expected to set, range from 0 to 5.
+ *
+ * @retval #LOS_NOK   Set dmesg level fail.
+ * @retval #LOS_OK    Set dmesg level success.
+ * @par Dependency:
+ * <ul><li>dmesg.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_DmesgLvSet
+ * @since Huawei LiteOS V200R001C10
+ */
+extern UINT32 LOS_DmesgLvSet(UINT32 level);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+#endif
+#endif /* _HWLITEOS_SHELL_DMESG_H *//* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Implementation Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#ifndef _HWLITEOS_SHELL_H
+#define _HWLITEOS_SHELL_H
+
+#include "pthread.h"
+#include "limits.h"
+#include "los_base.h"
+#include "los_event.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#define OS_ERRNO_SHELL_NO_HOOK                  LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x00)
+#define OS_ERRNO_SHELL_CMDREG_PARA_ERROR        LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x01)
+#define OS_ERRNO_SHELL_CMDREG_CMD_ERROR         LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x02)
+#define OS_ERRNO_SHELL_CMDREG_CMD_EXIST         LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x03)
+#define OS_ERRNO_SHELL_CMDREG_MEMALLOC_ERROR    LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x04)
+#define OS_ERRNO_SHELL_SHOW_HOOK_NULL           LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x05)
+#define OS_ERRNO_SHELL_SHOW_HOOK_EXIST          LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x06)
+#define OS_ERRNO_SHELL_SHOW_HOOK_TOO_MUCH       LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x07)
+#define OS_ERRNO_SHELL_NOT_INIT                 LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x08)
+#define OS_ERRNO_SHELL_CMD_HOOK_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x09)
+#define OS_ERRNO_SHELL_FIFO_ERROR               LOS_ERRNO_OS_ERROR(LOS_MOD_SHELL, 0x10)
+
+/* Max len of show str */
+#define SHOW_MAX_LEN CMD_MAX_LEN
+
+#define XARGS 0xFFFFFFFF /* default args */
+
+#define CMD_MAX_PARAS           32
+#define CMD_KEY_LEN             16U
+#define CMD_MAX_LEN             (256U + CMD_KEY_LEN)
+#define CMD_KEY_NUM             32
+#define CMD_HISTORY_LEN         10
+#define CMD_MAX_PATH            256
+#define DEFAULT_SCREEN_WIDTH    80
+#define DEFAULT_SCREEN_HEIGHT   24
+
+#define SHELL_MODE              0
+#define OTHER_MODE              1
+
+#define SWITCH_QUOTES_STATUS(qu) do {   \
+    if ((qu) == TRUE) {                 \
+        (qu) = FALSE;                   \
+    } else {                            \
+        (qu) = TRUE;                    \
+    }                                   \
+} while (0)
+
+#define QUOTES_STATUS_CLOSE(qu) ((qu) == FALSE)
+#define QUOTES_STATUS_OPEN(qu)  ((qu) == TRUE)
+
+typedef struct {
+    UINT32   consoleID;
+    UINT32   shellTaskHandle;
+    UINT32   shellEntryHandle;
+    VOID     *cmdKeyLink;
+    VOID     *cmdHistoryKeyLink;
+    VOID     *cmdMaskKeyLink;
+    UINT32   shellBufOffset;
+    UINT32   shellKeyType;
+    EVENT_CB_S shellEvent;
+    pthread_mutex_t keyMutex;
+    pthread_mutex_t historyMutex;
+    CHAR     shellBuf[SHOW_MAX_LEN];
+    CHAR     shellWorkingDirectory[PATH_MAX];
+} ShellCB;
+
+/* All support cmd types */
+typedef enum {
+    CMD_TYPE_SHOW = 0,
+    CMD_TYPE_STD = 1,
+    CMD_TYPE_EX = 2,
+    CMD_TYPE_BUTT
+} CmdType;
+
+typedef enum {
+    CMD_KEY_UP = 0,
+    CMD_KEY_DOWN = 1,
+    CMD_KEY_RIGHT = 2,
+    CMD_KEY_LEFT = 4,
+    CMD_KEY_BUTT
+} CmdKeyDirection;
+
+/*
+ * Hook for user-defined debug function
+ * Unify different module's func for registration
+ */
+typedef UINT32 (*CmdCallBackFunc)(UINT32 argc, const CHAR **argv);
+
+/* External interface, need reserved */
+typedef CmdCallBackFunc CMD_CBK_FUNC;
+typedef CmdType CMD_TYPE_E;
+
+extern UINT32 osCmdReg(CmdType cmdType, CHAR *cmdKey, UINT32 paraNum, CmdCallBackFunc cmdProc);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _HWLITEOS_SHELL_H */
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+ * Description: LiteOS Shell Message Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2020-08-11
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "los_base.h"
+#include "shell_pri.h"
+#include "shmsg.h"
+#include "console.h"
+#include "uart.h"
+
+UINT32 ShellStdinLoop(ShellCB *shellCB)
+{
+    UINT8 ch;
+    while (1) {
+        ch = uart_read();
+        ShellCmdLineParse(ch, (pf_OUTPUT)dprintf, shellCB);
+    }
+    return 0;
+}
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Command Parse Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "los_memory.h"
+#include "shcmd.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+/*
+ * Filter out double quote or single-quoted strings at both ends
+ */
+LITE_OS_SEC_TEXT_MINOR CHAR *OsCmdParseStrdup(const CHAR *str)
+{
+    CHAR *tempStr = NULL;
+    CHAR *newStr = NULL;
+
+    newStr = (CHAR *)LOS_MemAlloc(m_aucSysMem0, strlen(str) + 1);
+    if (newStr == NULL) {
+        return NULL;
+    }
+
+    tempStr = newStr;
+    for (; *str != '\0'; str++) {
+        if ((*str == '\"') || (*str == '\'')) {
+            continue;
+        }
+        *newStr = *str;
+        newStr++;
+    }
+    *newStr = '\0';
+    return tempStr;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdParseParaGet(CHAR **value, const CHAR *paraTokenStr)
+{
+    if ((paraTokenStr == NULL) || (value == NULL)) {
+        return (UINT32)OS_ERROR;
+    }
+    *value = OsCmdParseStrdup(paraTokenStr);
+    return LOS_OK;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdParseOneToken(CmdParsed *cmdParsed, UINT32 index, const CHAR *token)
+{
+    UINT32 ret = LOS_OK;
+    UINT32 tempLen;
+
+    if (cmdParsed == NULL) {
+        return (UINT32)OS_ERROR;
+    }
+
+    if (index == 0) {
+        if (cmdParsed->cmdType != CMD_TYPE_STD) {
+            return ret;
+        }
+    }
+
+    if ((token != NULL) && (cmdParsed->paramCnt < CMD_MAX_PARAS)) {
+        tempLen = cmdParsed->paramCnt;
+        ret = OsCmdParseParaGet(&(cmdParsed->paramArray[tempLen]), token);
+        if (ret != LOS_OK) {
+            return ret;
+        }
+        cmdParsed->paramCnt++;
+    }
+    return ret;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdTokenSplit(CHAR *cmdStr, CHAR split, CmdParsed *cmdParsed)
+{
+    enum {
+        STAT_INIT,
+        STAT_TOKEN_IN,
+        STAT_TOKEN_OUT
+    } state = STAT_INIT;
+    UINT32 count = 0;
+    CHAR *p = NULL;
+    CHAR *token = cmdStr;
+    UINT32 ret = LOS_OK;
+    BOOL quotes = FALSE;
+
+    if (cmdStr == NULL) {
+        return (UINT32)OS_ERROR;
+    }
+
+    for (p = cmdStr; (*p != '\0') && (ret == LOS_OK); p++) {
+        if (*p == '\"') {
+            SWITCH_QUOTES_STATUS(quotes);
+        }
+        switch (state) {
+            case STAT_INIT:
+            case STAT_TOKEN_IN:
+                if ((*p == split) && QUOTES_STATUS_CLOSE(quotes)) {
+                    *p = '\0';
+                    ret = OsCmdParseOneToken(cmdParsed, count++, token);
+                    state = STAT_TOKEN_OUT;
+                }
+                break;
+            case STAT_TOKEN_OUT:
+                if (*p != split) {
+                    token = p;
+                    state = STAT_TOKEN_IN;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (((ret == LOS_OK) && (state == STAT_TOKEN_IN)) || (state == STAT_INIT)) {
+        ret = OsCmdParseOneToken(cmdParsed, count, token);
+    }
+
+    return ret;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdParse(CHAR *cmdStr, CmdParsed *cmdParsed)
+{
+    if ((cmdStr == NULL) || (cmdParsed == NULL) || (strlen(cmdStr) == 0)) {
+        return (UINT32)OS_ERROR;
+    }
+    return OsCmdTokenSplit(cmdStr, ' ', cmdParsed);
+}
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Message Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "shmsg.h"
+#include "stdlib.h"
+#include "stdio.h"
+#include "unistd.h"
+#include "securec.h"
+#include "los_base.h"
+#include "los_task.h"
+#include "los_event.h"
+#include "los_list.h"
+#include "los_printf.h"
+#include "shell_pri.h"
+#include "shcmd.h"
+
+#ifdef LOSCFG_FS_VFS
+#include "console.h"
+#endif
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#define SHELL_CMD_PARSE_EVENT   0x111
+#define SHELL_CMD_EXIT_EVENT    0x112
+#define SHELL_CMD_EVENT_MASK    0xFFF
+
+#ifdef LOSCFG_ARCH_ARM_CORTEX_M
+#define SHELL_TASK_STACK_SIZE   0x1000
+#define SHELL_ENTRY_STACK_SIZE  0x600
+#else
+#define SHELL_TASK_STACK_SIZE   0x3000
+#define SHELL_ENTRY_STACK_SIZE  0x1000
+#endif
+
+#define SHELL_TASK_PRIORITY     9
+#define SHELL_ENTRY_PRIORITY    9
+
+CHAR *ShellGetInputBuf(ShellCB *shellCB)
+{
+    CmdKeyLink *cmdKey = shellCB->cmdKeyLink;
+    CmdKeyLink *cmdNode = NULL;
+
+    (VOID)pthread_mutex_lock(&shellCB->keyMutex);
+    if ((cmdKey == NULL) || LOS_ListEmpty(&cmdKey->list)) {
+        (VOID)pthread_mutex_unlock(&shellCB->keyMutex);
+        return NULL;
+    }
+
+    cmdNode = LOS_DL_LIST_ENTRY(cmdKey->list.pstNext, CmdKeyLink, list);
+    LOS_ListDelete(&(cmdNode->list));
+    (VOID)pthread_mutex_unlock(&shellCB->keyMutex);
+
+    return cmdNode->cmdString;
+}
+
+STATIC VOID ShellSaveHistoryCmd(CHAR *string, ShellCB *shellCB)
+{
+    CmdKeyLink *cmdHistory = shellCB->cmdHistoryKeyLink;
+    CmdKeyLink *cmdKey = LOS_DL_LIST_ENTRY(string, CmdKeyLink, cmdString);
+    CmdKeyLink *cmdNxt = NULL;
+
+    if ((string == NULL) || (strlen(string) == 0)) {
+        return;
+    }
+
+    (VOID)pthread_mutex_lock(&shellCB->historyMutex);
+    if (cmdHistory->count != 0) {
+        cmdNxt = LOS_DL_LIST_ENTRY(cmdHistory->list.pstPrev, CmdKeyLink, list);
+        if (strcmp(string, cmdNxt->cmdString) == 0) {
+            (VOID)LOS_MemFree(m_aucSysMem0, (VOID *)cmdKey);
+            (VOID)pthread_mutex_unlock(&shellCB->historyMutex);
+            return;
+        }
+    }
+
+    if (cmdHistory->count == CMD_HISTORY_LEN) {
+        cmdNxt = LOS_DL_LIST_ENTRY(cmdHistory->list.pstNext, CmdKeyLink, list);
+        LOS_ListDelete(&cmdNxt->list);
+        LOS_ListTailInsert(&cmdHistory->list, &cmdKey->list);
+        (VOID)LOS_MemFree(m_aucSysMem0, (VOID *)cmdNxt);
+        (VOID)pthread_mutex_unlock(&shellCB->historyMutex);
+        return;
+    }
+
+    LOS_ListTailInsert(&cmdHistory->list, &cmdKey->list);
+    cmdHistory->count++;
+
+    (VOID)pthread_mutex_unlock(&shellCB->historyMutex);
+    return;
+}
+
+STATIC VOID ShellNotify(ShellCB *shellCB)
+{
+    (VOID)LOS_EventWrite(&shellCB->shellEvent, SHELL_CMD_PARSE_EVENT);
+}
+
+enum {
+    STAT_NOMAL_KEY,
+    STAT_ESC_KEY,
+    STAT_MULTI_KEY
+};
+
+enum {
+    CMD_KEY_ESC_VALUE   = 0x1b,
+    CMD_KEY_UP_VALUE    = 0x41,
+    CMD_KEY_DOWN_VALUE  = 0x42,
+    CMD_KEY_RIGHT_VALUE = 0x43,
+    CMD_KEY_LEFT_VALUE  = 0x44,
+    CMD_KEY_COMBINATION_VALUE = 0x5b
+};
+
+STATIC INT32 ShellCmdLineCheckUDRL(const CHAR ch, ShellCB *shellCB)
+{
+    INT32 ret = LOS_OK;
+    if (ch == CMD_KEY_ESC_VALUE) {
+        shellCB->shellKeyType = STAT_ESC_KEY;
+        return ret;
+    } else if (ch == CMD_KEY_COMBINATION_VALUE) {
+        if (shellCB->shellKeyType == STAT_ESC_KEY) {
+            shellCB->shellKeyType = STAT_MULTI_KEY;
+            return ret;
+        }
+    } else if (ch == CMD_KEY_UP_VALUE) {
+        if (shellCB->shellKeyType == STAT_MULTI_KEY) {
+            OsShellHistoryShow(CMD_KEY_UP, shellCB);
+            shellCB->shellKeyType = STAT_NOMAL_KEY;
+            return ret;
+        }
+    } else if (ch == CMD_KEY_DOWN_VALUE) {
+        if (shellCB->shellKeyType == STAT_MULTI_KEY) {
+            shellCB->shellKeyType = STAT_NOMAL_KEY;
+            OsShellHistoryShow(CMD_KEY_DOWN, shellCB);
+            return ret;
+        }
+    } else if (ch == CMD_KEY_RIGHT_VALUE) {
+        if (shellCB->shellKeyType == STAT_MULTI_KEY) {
+            shellCB->shellKeyType = STAT_NOMAL_KEY;
+            return ret;
+        }
+    } else if (ch == CMD_KEY_LEFT_VALUE) {
+        if (shellCB->shellKeyType == STAT_MULTI_KEY) {
+            shellCB->shellKeyType = STAT_NOMAL_KEY;
+            return ret;
+        }
+    }
+    return LOS_NOK;
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID ShellCmdLineParse(CHAR c, pf_OUTPUT outputFunc, ShellCB *shellCB)
+{
+    const CHAR ch = c;
+    INT32 ret;
+
+    if ((shellCB->shellBufOffset == 0) && (ch != '\n') && (ch != '\0')) {
+        (VOID)memset_s(shellCB->shellBuf, SHOW_MAX_LEN, 0, SHOW_MAX_LEN);
+    }
+
+    if (ch == '\r') {
+        if (shellCB->shellBufOffset < (SHOW_MAX_LEN - 1)) {
+            shellCB->shellBuf[shellCB->shellBufOffset] = '\0';
+        }
+        shellCB->shellBufOffset = 0;
+        (VOID)pthread_mutex_lock(&shellCB->keyMutex);
+        OsShellCmdPush(shellCB->shellBuf, shellCB->cmdKeyLink);
+        (VOID)pthread_mutex_unlock(&shellCB->keyMutex);
+        ShellNotify(shellCB);
+        return;
+    } else if ((ch == '\b') || (ch == 0x7F)) { /* backspace or delete(0x7F) */
+        if ((shellCB->shellBufOffset > 0) && (shellCB->shellBufOffset < (SHOW_MAX_LEN - 1))) {
+            shellCB->shellBuf[shellCB->shellBufOffset - 1] = '\0';
+            shellCB->shellBufOffset--;
+            outputFunc("\b \b");
+        }
+        return;
+    } else if (ch == 0x09) { /* 0x09: tab */
+        if ((shellCB->shellBufOffset > 0) && (shellCB->shellBufOffset < (SHOW_MAX_LEN - 1))) {
+            ret = OsTabCompletion(shellCB->shellBuf, &shellCB->shellBufOffset);
+            if (ret > 1) {
+                outputFunc("Huawei LiteOS # %s", shellCB->shellBuf);
+            }
+        }
+        return;
+    }
+    /* parse the up/down/right/left key */
+    ret = ShellCmdLineCheckUDRL(ch, shellCB);
+    if (ret == LOS_OK) {
+        return;
+    }
+
+    if ((ch != '\n') && (ch != '\0')) {
+        if (shellCB->shellBufOffset < (SHOW_MAX_LEN - 1)) {
+            shellCB->shellBuf[shellCB->shellBufOffset] = ch;
+        } else {
+            shellCB->shellBuf[SHOW_MAX_LEN - 1] = '\0';
+        }
+        shellCB->shellBufOffset++;
+        outputFunc("%c", ch);
+    }
+
+    shellCB->shellKeyType = STAT_NOMAL_KEY;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 ShellMsgTypeGet(CmdParsed *cmdParsed, const CHAR *cmdType)
+{
+    UINT32 minLen;
+    CmdItemNode *curCmdItem = (CmdItemNode *)NULL;
+    UINT32 len = strlen(cmdType);
+    CmdModInfo *cmdInfo = OsCmdInfoGet();
+
+    LOS_DL_LIST_FOR_EACH_ENTRY(curCmdItem, &cmdInfo->cmdList.list, CmdItemNode, list) {
+        if ((len == strlen(curCmdItem->cmd->cmdKey)) &&
+            (strncmp((CHAR *)(curCmdItem->cmd->cmdKey), cmdType, len) == 0)) {
+            minLen = (len < CMD_KEY_LEN) ? len : (CMD_KEY_LEN - 1);
+            if (strncpy_s((CHAR *)(cmdParsed->cmdKeyword), CMD_KEY_LEN, cmdType, minLen) != EOK) {
+                PRINTK("strncpy_s failure in %s\n", __FUNCTION__);
+            }
+            cmdParsed->cmdType = curCmdItem->cmd->cmdType;
+            return LOS_OK;
+        }
+    }
+
+    return OS_INVALID;
+}
+
+STATIC UINT32 ShellMsgNameGetAndExec(CmdParsed *cmdParsed, const CHAR *output, UINT32 len)
+{
+    UINT32 loop;
+    UINT32 ret;
+    const CHAR *tmpStr = NULL;
+    BOOL quotes = FALSE;
+    CHAR *msgName = (CHAR *)LOS_MemAlloc(m_aucSysMem0, len + 1);
+    if (msgName == NULL) {
+        PRINTK("malloc failure in %s[%d]\n", __FUNCTION__, __LINE__);
+        return OS_INVALID;
+    }
+    /* Scan the 'output' string for command */
+    /* Notice: Command string must not have any special name */
+    for (tmpStr = output, loop = 0; (*tmpStr != '\0') && (loop < len);) {
+        /* If reach a double quotes, switch the quotes matching status */
+        if (*tmpStr == '\"') {
+            SWITCH_QUOTES_STATUS(quotes);
+            /* Ignore the double quote CHARactor itself */
+            tmpStr++;
+            continue;
+        }
+        /* If detected a space which the quotes matching status is false */
+        /* which said has detected the first space for separator, finish this scan operation */
+        if ((*tmpStr == ' ') && (QUOTES_STATUS_CLOSE(quotes))) {
+            break;
+        }
+        msgName[loop] = *tmpStr++;
+        loop++;
+    }
+    msgName[loop] = '\0';
+    /* Scan the command list to check whether the command can be found */
+    ret = ShellMsgTypeGet(cmdParsed, msgName);
+    PRINTK("\n");
+    if (ret != LOS_OK) {
+        PRINTK("%s:command not found", msgName);
+    } else {
+        (VOID)OsCmdExec(cmdParsed, (CHAR *)output);
+    }
+    (VOID)LOS_MemFree(m_aucSysMem0, msgName);
+    return ret;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 ShellMsgParse(const VOID *msg)
+{
+    CHAR *output = NULL;
+    UINT32 len;
+    CmdParsed cmdParsed;
+    UINT32 ret = OS_INVALID;
+
+    if (msg == NULL) {
+        goto END;
+    }
+
+    len = strlen(msg);
+    output = (CHAR *)LOS_MemAlloc(m_aucSysMem0, len + 1);
+    if (output == NULL) {
+        PRINTK("malloc failure in %s[%d]\n", __FUNCTION__, __LINE__);
+        goto END;
+    }
+    /* Call function 'OsCmdKeyShift' to squeeze and clear useless or overmuch space if string buffer */
+    ret = OsCmdKeyShift((CHAR *)msg, output, len + 1);
+    if ((ret != LOS_OK) || (strlen(output) == 0)) {
+        ret = OS_INVALID;
+        goto END_FREE_OUTPUT;
+    }
+
+    (VOID)memset_s(&cmdParsed, sizeof(CmdParsed), 0, sizeof(CmdParsed));
+
+    ret = ShellMsgNameGetAndExec(&cmdParsed, output, len);
+
+END_FREE_OUTPUT:
+    (VOID)LOS_MemFree(m_aucSysMem0, output);
+END:
+    return ret;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 ShellEntry(VOID *param)
+{
+    ShellCB *shellCB = (ShellCB *)param;
+
+    (VOID)memset_s(shellCB->shellBuf, SHOW_MAX_LEN, 0, SHOW_MAX_LEN);
+    return ShellStdinLoop(shellCB);
+}
+
+STATIC VOID ShellCmdProcess(ShellCB *shellCB)
+{
+    CHAR *buf = NULL;
+    while (1) {
+        buf = ShellGetInputBuf(shellCB);
+        if (buf == NULL) {
+            break;
+        }
+        (VOID)ShellMsgParse(buf);
+        ShellSaveHistoryCmd(buf, shellCB);
+        shellCB->cmdMaskKeyLink = shellCB->cmdHistoryKeyLink;
+    }
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 ShellTask(VOID *param)
+{
+    UINT32 ret;
+    ShellCB *shellCB = (ShellCB *)param;
+
+    while (1) {
+        PRINTK("\nHuawei LiteOS # ");
+        ret = LOS_EventRead(&shellCB->shellEvent, SHELL_CMD_EVENT_MASK,
+                            LOS_WAITMODE_OR | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
+        if (ret == SHELL_CMD_PARSE_EVENT) {
+            ShellCmdProcess(shellCB);
+        } else if (ret == SHELL_CMD_EXIT_EVENT) {
+            break;
+        }
+    }
+    OsShellKeyDeInit(shellCB);
+    (VOID)LOS_EventDestroy(&shellCB->shellEvent);
+    (VOID)LOS_MemFree((VOID *)m_aucSysMem0, shellCB);
+    return 0;
+}
+
+#define SERIAL_SHELL_TASK_NAME "SerialShellTask"
+#define SERIAL_ENTRY_TASK_NAME "SerialEntryTask"
+#define TELNET_SHELL_TASK_NAME "TelnetShellTask"
+#define TELNET_ENTRY_TASK_NAME "TelnetEntryTask"
+
+LITE_OS_SEC_TEXT_MINOR UINT32 ShellTaskInit(ShellCB *shellCB)
+{
+    CHAR *name = NULL;
+    TSK_INIT_PARAM_S initParam = {0};
+
+    if (shellCB == NULL) {
+        return LOS_NOK;
+    }
+
+#ifdef LOSCFG_SHELL_CONSOLE
+    if (shellCB->consoleID == CONSOLE_SERIAL) {
+        name = SERIAL_SHELL_TASK_NAME;
+    } else if (shellCB->consoleID == CONSOLE_TELNET) {
+        name = TELNET_SHELL_TASK_NAME;
+    } else {
+        return LOS_NOK;
+    }
+#else
+    /* in non-console mode, shell only support one input */
+    name = SERIAL_SHELL_TASK_NAME;
+#endif
+
+    initParam.pfnTaskEntry = (TSK_ENTRY_FUNC)ShellTask;
+    initParam.usTaskPrio   = SHELL_TASK_PRIORITY;
+    initParam.uwStackSize  = SHELL_TASK_STACK_SIZE;
+    initParam.pcName       = name;
+    initParam.uwResved     = LOS_TASK_STATUS_DETACHED;
+    LOS_TASK_PARAM_INIT_ARG(initParam, shellCB);
+
+    (VOID)LOS_EventInit(&shellCB->shellEvent);
+
+    return LOS_TaskCreate(&shellCB->shellTaskHandle, &initParam);
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID ShellTaskDeinit(ShellCB *shellCB)
+{
+    (VOID)LOS_TaskDelete(shellCB->shellEntryHandle);
+    (VOID)LOS_EventWrite(&shellCB->shellEvent, SHELL_CMD_EXIT_EVENT);
+}
+
+#ifdef LOSCFG_EXC_INTERACTION
+BOOL IsShellTask(UINT32 taskId)
+{
+    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskId);
+
+    if ((taskCB->taskEntry == (TSK_ENTRY_FUNC)ShellTask) ||
+        (taskCB->taskEntry == (TSK_ENTRY_FUNC)ShellEntry)) {
+        return TRUE;
+    }
+    return FALSE;
+}
+#endif
+
+LITE_OS_SEC_TEXT_MINOR UINT32 ShellEntryInit(ShellCB *shellCB)
+{
+    UINT32 ret;
+    CHAR *name = NULL;
+    TSK_INIT_PARAM_S initParam = {0};
+
+    if (shellCB == NULL) {
+        return LOS_NOK;
+    }
+
+#ifdef LOSCFG_SHELL_CONSOLE
+    if (shellCB->consoleID == CONSOLE_SERIAL) {
+        name = SERIAL_ENTRY_TASK_NAME;
+    } else if (shellCB->consoleID == CONSOLE_TELNET) {
+        name = TELNET_ENTRY_TASK_NAME;
+    } else {
+        return LOS_NOK;
+    }
+#else
+    /* in non-console mode, shell only support one input */
+    name = SERIAL_ENTRY_TASK_NAME;
+#endif
+
+    initParam.pfnTaskEntry = (TSK_ENTRY_FUNC)ShellEntry;
+    initParam.usTaskPrio   = SHELL_ENTRY_PRIORITY;
+    initParam.uwStackSize  = SHELL_ENTRY_STACK_SIZE;
+    initParam.pcName       = name;
+    initParam.uwResved     = LOS_TASK_STATUS_DETACHED;
+    LOS_TASK_PARAM_INIT_ARG(initParam, shellCB);
+
+    ret = LOS_TaskCreate(&shellCB->shellEntryHandle, &initParam);
+
+#ifdef LOSCFG_SHELL_CONSOLE
+    ret = ConsoleTaskReg((INT32)shellCB->consoleID, shellCB->shellEntryHandle);
+#endif
+
+    return ret;
+}
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Show Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "show.h"
+#include "shmsg.h"
+#include "shcmd.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+STATIC BOOL g_shellSourceFlag = FALSE;
+#ifndef LOSCFG_SHELL_CONSOLE
+/* If not using console, then allocated shell struct will store in this global variable */
+STATIC ShellCB *g_shellCB = NULL;
+#endif
+
+STATIC UINT32 OsShellSourceInit(VOID)
+{
+    UINT32 ret;
+
+    if (g_shellSourceFlag) {
+        return LOS_OK;
+    }
+
+    ret = OsCmdInit();
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    ret = OsShellSysCmdRegister();
+    if (ret != LOS_OK) {
+        return ret;
+    }
+    g_shellSourceFlag = TRUE;
+    return LOS_OK;
+}
+
+STATIC UINT32 OsShellCreateTask(ShellCB *shellCB)
+{
+    UINT32 ret = ShellTaskInit(shellCB);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    ret = ShellEntryInit(shellCB);
+    if (ret != LOS_OK) {
+        (VOID)LOS_TaskDelete(shellCB->shellTaskHandle);
+    }
+    return ret;
+}
+
+UINT32 OsShellInit(INT32 consoleId)
+{
+    UINT32 ret;
+    ShellCB *shellCB = NULL;
+
+    ret = OsShellSourceInit();
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    shellCB = LOS_MemAlloc(m_aucSysMem0, sizeof(ShellCB));
+    if (shellCB == NULL) {
+        return LOS_NOK;
+    }
+
+    (VOID)memset_s(shellCB, sizeof(ShellCB), 0, sizeof(ShellCB));
+
+#ifdef LOSCFG_SHELL_CONSOLE
+    CONSOLE_CB *consoleCB = OsGetConsoleByID(consoleId);
+    if ((consoleCB == NULL) || (consoleCB->shellHandle != NULL)) {
+        (VOID)LOS_MemFree(m_aucSysMem0, shellCB);
+        return LOS_NOK;
+    }
+
+    consoleCB->shellHandle = shellCB;
+    shellCB->consoleID = (UINT32)consoleId;
+#else
+    g_shellCB = shellCB;
+#endif
+
+    (VOID)pthread_mutex_init(&shellCB->keyMutex, NULL);
+    (VOID)pthread_mutex_init(&shellCB->historyMutex, NULL);
+
+    if (strncpy_s(shellCB->shellWorkingDirectory, PATH_MAX, "/", 1) != EOK) {
+        ret = LOS_NOK;
+        goto ERR_OUT1;
+    }
+
+    ret = OsShellKeyInit(shellCB);
+    if (ret != LOS_OK) {
+        goto ERR_OUT1;
+    }
+
+    ret = OsShellCreateTask(shellCB);
+    if (ret != LOS_OK) {
+        goto ERR_OUT2;
+    }
+
+    return LOS_OK;
+ERR_OUT2:
+    OsShellKeyDeInit(shellCB);
+ERR_OUT1:
+    (VOID)pthread_mutex_destroy(&shellCB->historyMutex);
+    (VOID)pthread_mutex_destroy(&shellCB->keyMutex);
+    (VOID)LOS_MemFree((VOID *)m_aucSysMem0, shellCB);
+#ifdef LOSCFG_SHELL_CONSOLE
+    consoleCB->shellHandle = NULL;
+#endif
+    return ret;
+}
+
+INT32 OsShellDeinit(INT32 consoleId)
+{
+    ShellCB *shellCB = NULL;
+
+#ifdef LOSCFG_SHELL_CONSOLE
+    CONSOLE_CB *consoleCB = OsGetConsoleByID(consoleId);
+    if (consoleCB == NULL) {
+        PRINT_ERR("shell deinit error.\n");
+        return -1;
+    }
+
+    shellCB = (ShellCB *)consoleCB->shellHandle;
+    consoleCB->shellHandle = NULL;
+#else
+    shellCB = g_shellCB;
+#endif
+    ShellTaskDeinit(shellCB);
+
+    return 0;
+}
+
+CHAR *OsShellGetWorkingDirectory(VOID)
+{
+    ShellCB *shellCB = NULL;
+
+#ifdef LOSCFG_SHELL_CONSOLE
+    CONSOLE_CB *consoleCB = OsGetConsoleByTaskID(OsCurrTaskGet()->taskId);
+    if (consoleCB == NULL) {
+        return NULL;
+    }
+
+    shellCB = (ShellCB *)consoleCB->shellHandle;
+    if (shellCB == NULL) {
+        return NULL;
+    }
+    return shellCB->shellWorkingDirectory;
+#else
+    shellCB = g_shellCB;
+    return shellCB->shellWorkingDirectory;
+#endif
+}
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell LK Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "shell_lk.h"
+#include "stdlib.h"
+#include "stdio.h"
+#include "unistd.h"
+#include "securec.h"
+#include "los_printf_pri.h"
+#include "shcmd.h"
+
+#ifdef LOSCFG_SHELL_DMESG
+#include "dmesg_pri.h"
+#endif
+
+#ifdef LOSCFG_SHELL_LK
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+typedef enum {
+    TRACE_EMG = 0,
+    TRACE_COMMOM = 1,
+    TRACE_ERROR = 2,
+    TRACE_WARN = 3,
+    TRACE_INFO = 4,
+    TRACE_DEBUG = 5,
+} TraceFlag;
+
+typedef enum {
+    MODULE0 = 0,
+    MODULE1 = 1,
+    MODULE2 = 2,
+    MODULE3 = 3,
+    MODULE4 = 4,
+} ModuleFlag;
+
+typedef struct {
+    INT32 moduleLevel;
+    INT32 traceLevel;
+    FILE *fp;
+} Logger;
+
+STATIC INT32 g_traceLevel = TRACE_DEFAULT;
+STATIC INT32 g_moduleLevel;
+
+STATIC Logger g_logger = { 0 };
+
+STATIC const CHAR *g_logString[] = {
+    "EMG",
+    "COMMOM",
+    "ERR",
+    "WARN",
+    "INFO",
+    "DEBUG"
+};
+
+VOID OsLkDefaultFunc(INT32 level, const CHAR *func, INT32 line, const CHAR *fmt, va_list ap);
+
+LK_FUNC g_osLkHook = (LK_FUNC)OsLkDefaultFunc;
+
+STATIC INLINE INT32 OsLkTraceLvGet(VOID)
+{
+    return g_traceLevel;
+}
+
+const CHAR *OsLkCurLogLvGet(VOID)
+{
+    return g_logString[g_traceLevel];
+}
+
+const CHAR *OsLkLogLvGet(INT32 level)
+{
+    return g_logString[level];
+}
+
+VOID OsLkTraceLvSet(INT32 level)
+{
+    g_traceLevel = level;
+    g_logger.traceLevel = level;
+    return;
+}
+
+VOID OsLkModuleLvSet(INT32 level)
+{
+    g_moduleLevel = level;
+    g_logger.moduleLevel = level;
+    return;
+}
+
+INT32 OsLkModuleLvGet(VOID)
+{
+    return g_moduleLevel;
+}
+
+VOID OsLkLogFileSet(const CHAR *str)
+{
+    FILE *fp = NULL;
+
+    if (str == NULL) {
+        return;
+    }
+
+    fp = fopen(str, "w+");
+    if (fp == NULL) {
+        printf("Error can't open the %s file\n", str);
+        return;
+    }
+
+    g_logger.fp = fp;
+}
+
+FILE *OsLogFpGet(VOID)
+{
+    return g_logger.fp;
+}
+
+INT32 CmdLog(INT32 argc, const CHAR **argv)
+{
+    size_t level;
+    size_t module;
+    CHAR *p = NULL;
+
+    if (argc != 2) { /* 2:count of parameter */
+        printf("Usage: log level <num>\n");
+        printf("Usage: log module <num>\n");
+        printf("Usage: log path <PATH>\n");
+        return -1;
+    }
+
+    if (!strncmp(argv[0], "level", strlen(argv[0]) + 1)) {
+        level = strtoul(argv[1], &p, 0);
+        if ((*p != 0) || (level > TRACE_DEBUG) || (level < TRACE_EMG)) {
+            printf("current log level %s\n", OsLkCurLogLvGet());
+            printf("log %s [num] can access as 0:EMG 1:COMMOM 2:ERROR 3:WARN 4:INFO 5:DEBUG\n", argv[0]);
+        } else {
+            OsLkTraceLvSet(level);
+            printf("Set current log level %s\n", OsLkCurLogLvGet());
+        }
+    } else if (!strncmp(argv[0], "module", strlen(argv[0]) + 1)) {
+        module = strtoul(argv[1], &p, 0);
+        if ((*p != 0) || (module > MODULE4) || (module < MODULE0)) {
+            printf("log %s can't access %s\n", argv[0], argv[1]);
+            printf("not support yet\n");
+            return -1;
+        } else {
+            OsLkModuleLvSet(module);
+            printf("not support yet\n");
+        }
+    } else if (!strncmp(argv[0], "path", strlen(argv[0]) + 1)) {
+        printf("not support yet\n");
+    } else {
+        printf("Usage: log level <num>\n");
+        printf("Usage: log module <num>\n");
+        printf("Usage: log path <PATH>\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+#ifdef LOSCFG_SHELL_DMESG
+STATIC INLINE VOID OsLogCycleRecord(INT32 level)
+{
+    UINT32 tmpLen;
+    if ((level != TRACE_COMMOM) && ((level > TRACE_EMG) && (level < TRACE_DEBUG))) {
+        tmpLen = strlen(g_logString[level]);
+        const CHAR *tmpPtr = g_logString[level];
+        (VOID)OsLogRecordStr(tmpPtr, tmpLen);
+    }
+}
+#endif
+
+VOID OsLkDefaultFunc(INT32 level, const CHAR *func, INT32 line, const CHAR *fmt, va_list ap)
+{
+    (VOID)func;
+    (VOID)line;
+    if (level > OsLkTraceLvGet()) {
+#ifdef LOSCFG_SHELL_DMESG
+        if ((UINT32)level <= OsDmesgLvGet()) {
+            OsLogCycleRecord(level);
+            DmesgPrintf(fmt, ap);
+        }
+#endif
+        return;
+    }
+    if ((level != TRACE_COMMOM) && ((level > TRACE_EMG) && (level < TRACE_DEBUG))) {
+        dprintf("[%s]", g_logString[level]);
+    }
+    LkDprintf(fmt, ap);
+}
+
+VOID LOS_LkPrint(INT32 level, const CHAR *func, INT32 line, const CHAR *fmt, ...)
+{
+    va_list ap;
+    if (g_osLkHook != NULL) {
+        va_start(ap, fmt);
+        g_osLkHook(level, func, line, fmt, ap);
+        va_end(ap);
+    }
+}
+
+VOID LOS_LkRegHook(LK_FUNC hook)
+{
+    g_osLkHook = hook;
+}
+
+VOID OsLkLoggerInit(const CHAR *str)
+{
+    (VOID)str;
+    (VOID)memset_s(&g_logger, sizeof(Logger), 0, sizeof(Logger));
+    OsLkTraceLvSet(TRACE_DEFAULT);
+    LOS_LkRegHook(OsLkDefaultFunc);
+#ifdef LOSCFG_SHELL_DMESG
+    (VOID)LOS_DmesgLvSet(TRACE_DEFAULT);
+#endif
+}
+
+SHELLCMD_ENTRY(log_shellcmd, CMD_TYPE_EX, "log", 1, (CmdCallBackFunc)CmdLog);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+#endif
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Command Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "shcmd.h"
+#include "stdlib.h"
+#include "unistd.h"
+#include "dirent.h"
+#include "securec.h"
+#include "los_mux.h"
+#include "los_memory.h"
+#include "shell_pri.h"
+#include "show.h"
+
+#ifdef  __cplusplus
+#if  __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#define SHELL_INIT_MAGIC_FLAG 0xABABABAB
+#define CTRL_C 0x03 /* 0x03: ctrl+c ASCII */
+#define SPACE  0x20 /* 0x20: space ASCII */
+STATIC CmdModInfo g_cmdInfo;
+
+LOS_HAL_TABLE_BEGIN(g_shellcmd, shellcmd);
+LOS_HAL_TABLE_END(g_shellcmdEnd, shellcmd);
+
+CmdModInfo *OsCmdInfoGet(VOID)
+{
+    return &g_cmdInfo;
+}
+
+STATIC VOID OsFreeCmdPara(CmdParsed *cmdParsed)
+{
+    UINT32 i;
+    for (i = 0; i < cmdParsed->paramCnt; i++) {
+        if (cmdParsed->paramArray[i] != NULL) {
+            (VOID)LOS_MemFree(m_aucSysMem0, cmdParsed->paramArray[i]);
+            cmdParsed->paramArray[i] = NULL;
+        }
+    }
+}
+
+STATIC VOID OsCompleteStr(CHAR *result, const CHAR *target, CHAR *cmdKey, UINT32 *len)
+{
+    UINT32 size = strlen(result) - strlen(target);
+    CHAR *des = cmdKey + *len;
+    CHAR *src = result + strlen(target);
+
+    while (size-- > 0) {
+        PRINTK("%c", *src);
+        if (*len == (SHOW_MAX_LEN - 1)) {
+            *des = '\0';
+            break;
+        }
+        *des++ = *src++;
+        (*len)++;
+    }
+}
+
+#ifdef LOSCFG_FS_VFS
+STATIC INT32 OsStrSeparateTabStrGet(CHAR **tabStr, CmdParsed *parsed, UINT32 tabStrLen)
+{
+    CHAR *shiftStr = NULL;
+    CHAR *tempStr = (CHAR *)LOS_MemAlloc(m_aucSysMem0, SHOW_MAX_LEN << 1);
+    if (tempStr == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    (VOID)memset_s(tempStr, SHOW_MAX_LEN << 1, 0, SHOW_MAX_LEN << 1);
+    shiftStr = tempStr + SHOW_MAX_LEN;
+
+    if (strncpy_s(tempStr, SHOW_MAX_LEN, *tabStr, tabStrLen) != EOK) {
+        (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+        return (INT32)OS_ERROR;
+    }
+
+    parsed->cmdType = CMD_TYPE_STD;
+
+    /* cut useless or repeat space */
+    if (OsCmdKeyShift(tempStr, shiftStr, SHOW_MAX_LEN)) {
+        (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+        return (INT32)OS_ERROR;
+    }
+
+    /* get exact position of string to complete situation different if end space lost or still exist */
+    if ((strlen(shiftStr) == 0) || (tempStr[strlen(tempStr) - 1] != shiftStr[strlen(shiftStr) - 1])) {
+        *tabStr = "";
+    } else {
+        if (OsCmdTokenSplit(shiftStr, ' ', parsed)) {
+            (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+            return (INT32)OS_ERROR;
+        }
+        *tabStr = parsed->paramArray[parsed->paramCnt - 1];
+    }
+
+    (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+    return LOS_OK;
+}
+
+STATIC INT32 OsStrSeparate(CHAR *tabStr, CHAR *strPath, CHAR *nameLooking, UINT32 tabStrLen)
+{
+    CHAR *strEnd = NULL;
+    CHAR *cutPos = NULL;
+    CmdParsed parsed = {0};
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirectory();
+    INT32 ret;
+
+    ret = OsStrSeparateTabStrGet(&tabStr, &parsed, tabStrLen);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    /* get fullpath str */
+    if (*tabStr != '/') {
+        if (strncpy_s(strPath, CMD_MAX_PATH, shellWorkingDirectory, CMD_MAX_PATH - 1) != EOK) {
+            OsFreeCmdPara(&parsed);
+            return (INT32)OS_ERROR;
+        }
+        if (strcmp(shellWorkingDirectory, "/")) {
+            if (strncat_s(strPath, CMD_MAX_PATH, "/", CMD_MAX_PATH - strlen(strPath) - 1) != EOK) {
+                OsFreeCmdPara(&parsed);
+                return (INT32)OS_ERROR;
+            }
+        }
+    }
+
+    if (strncat_s(strPath, CMD_MAX_PATH, tabStr, CMD_MAX_PATH - strlen(strPath) - 1) != EOK) {
+        OsFreeCmdPara(&parsed);
+        return (INT32)OS_ERROR;
+    }
+
+    /* split str by last '/' */
+    strEnd = strrchr(strPath, '/');
+    if (strEnd != NULL) {
+        if (strncpy_s(nameLooking, CMD_MAX_PATH, strEnd + 1, CMD_MAX_PATH - 1) != EOK) { /* get cmp str */
+            OsFreeCmdPara(&parsed);
+            return (INT32)OS_ERROR;
+        }
+    }
+
+    cutPos = strrchr(strPath, '/');
+    if (cutPos != NULL) {
+        *(cutPos + 1) = '\0';
+    }
+
+    OsFreeCmdPara(&parsed);
+    return LOS_OK;
+}
+
+STATIC INT32 OsShowPageInputControl(VOID)
+{
+    CHAR readChar;
+
+    while (1) {
+        if (read(STDIN_FILENO, &readChar, 1) != 1) { /* get one CHAR */
+            PRINTK("\n");
+            return (INT32)OS_ERROR;
+        }
+        if ((readChar == 'q') || (readChar == 'Q') || (readChar == CTRL_C)) {
+            PRINTK("\n");
+            return NO;
+        } else if (readChar == '\r') {
+            PRINTK("\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b");
+            return YES; /* input end */
+        }
+    }
+}
+
+STATIC INT32 OsShowPageControl(UINT32 timesPrint, UINT32 lineCap, UINT32 count)
+{
+    if (NEED_NEW_LINE(timesPrint, lineCap)) {
+        PRINTK("\n");
+        if (SCREEN_IS_FULL(timesPrint, lineCap) && (timesPrint < count)) {
+            PRINTK("--More--");
+            return OsShowPageInputControl();
+        }
+    }
+    return YES;
+}
+
+STATIC INT32 OsSurePrintAll(UINT32 count)
+{
+    CHAR readChar = 0;
+    PRINTK("\nDisplay all %u possibilities?(y/n)", count);
+    while (1) {
+        if (read(STDIN_FILENO, &readChar, 1) != 1) {
+            return (INT32)OS_ERROR;
+        }
+        if ((readChar == 'n') || (readChar == 'N') || (readChar == CTRL_C)) {
+            PRINTK("\n");
+            return NO;
+        } else if ((readChar == 'y') || (readChar == 'Y') || (readChar == '\r')) {
+            return YES;
+        }
+    }
+}
+
+STATIC INT32 OsPrintMatchList(UINT32 count, const CHAR *strPath, const CHAR *nameLooking, UINT32 printLen)
+{
+    UINT32 timesPrint = 0;
+    UINT32 lineCap;
+    INT32 ret;
+    DIR *openDir = NULL;
+    struct dirent *readDir = NULL;
+    CHAR formatChar[10] = {0}; /* 10:for formatChar length */
+
+    printLen = (printLen > (DEFAULT_SCREEN_WIDTH - 2)) ? (DEFAULT_SCREEN_WIDTH - 2) : printLen; /* 2:revered 2 bytes */
+    lineCap = DEFAULT_SCREEN_WIDTH / (printLen + 2); /* 2:DEFAULT_SCREEN_WIDTH revered 2 bytes */
+    if (snprintf_s(formatChar, sizeof(formatChar), 7, "%%-%us  ", printLen) < 0) { /* 7:format-len */
+        return (INT32)OS_ERROR;
+    }
+
+    if (count > (lineCap * DEFAULT_SCREEN_HEIGHT)) {
+        ret = OsSurePrintAll(count);
+        if (ret != YES) {
+            return ret;
+        }
+    }
+    openDir = opendir(strPath);
+    if (openDir == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    PRINTK("\n");
+    for (readDir = readdir(openDir); readDir != NULL; readDir = readdir(openDir)) {
+        if (strncmp(nameLooking, readDir->d_name, strlen(nameLooking)) != 0) {
+            continue;
+        }
+        PRINTK(formatChar, readDir->d_name);
+        timesPrint++;
+        ret = OsShowPageControl(timesPrint, lineCap, count);
+        if (ret != YES) {
+            if (closedir(openDir) < 0) {
+                return (INT32)OS_ERROR;
+            }
+            return ret;
+        }
+    }
+
+    PRINTK("\n");
+    if (closedir(openDir) < 0) {
+        return (INT32)OS_ERROR;
+    }
+
+    return LOS_OK;
+}
+
+STATIC VOID StrncmpCut(const CHAR *s1, CHAR *s2, size_t n)
+{
+    if ((n == 0) || (s1 == NULL) || (s2 == NULL)) {
+        return;
+    }
+    do {
+        if (*s1 && *s2 && (*s1 == *s2)) {
+            s1++;
+            s2++;
+        } else {
+            break;
+        }
+    } while (--n != 0);
+    if (n > 0) {
+        /* NULL pad the remaining n-1 bytes */
+        while (n-- != 0) {
+            *s2++ = '\0';
+        }
+    }
+    return;
+}
+
+STATIC INT32 OsExecNameMatch(const CHAR *strPath, const CHAR *nameLooking, CHAR *strObj, UINT32 *maxLen)
+{
+    INT32 count = 0;
+    DIR *openDir = NULL;
+    struct dirent *readDir = NULL;
+
+    openDir = opendir(strPath);
+    if (openDir == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    for (readDir = readdir(openDir); readDir != NULL; readDir = readdir(openDir)) {
+        if (strncmp(nameLooking, readDir->d_name, strlen(nameLooking)) != 0) {
+            continue;
+        }
+        if (count == 0) {
+            if (strncpy_s(strObj, CMD_MAX_PATH, readDir->d_name, CMD_MAX_PATH - 1) != EOK) {
+                (VOID)closedir(openDir);
+                return (INT32)OS_ERROR;
+            }
+            *maxLen = strlen(readDir->d_name);
+        } else {
+            /* strncmp&cut the same strings of name matched */
+            StrncmpCut(readDir->d_name, strObj, strlen(strObj));
+            if (strlen(readDir->d_name) > *maxLen) {
+                *maxLen = strlen(readDir->d_name);
+            }
+        }
+        count++;
+    }
+
+    if (closedir(openDir) < 0) {
+        return (INT32)OS_ERROR;
+    }
+
+    return count;
+}
+
+STATIC INT32 OsTabMatchFile(CHAR *cmdKey, UINT32 *len)
+{
+    UINT32 maxLen = 0;
+    INT32 count;
+    CHAR *strOutput = NULL;
+    CHAR *strCmp = NULL;
+    CHAR *dirOpen = (CHAR *)LOS_MemAlloc(m_aucSysMem0, CMD_MAX_PATH * 3); /* 3:dirOpen\strOutput\strCmp */
+    if (dirOpen == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    (VOID)memset_s(dirOpen, CMD_MAX_PATH * 3, 0, CMD_MAX_PATH * 3); /* 3:dirOpen\strOutput\strCmp */
+    strOutput = dirOpen + CMD_MAX_PATH;
+    strCmp = strOutput + CMD_MAX_PATH;
+
+    if (OsStrSeparate(cmdKey, dirOpen, strCmp, *len)) {
+        (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+        return (INT32)OS_ERROR;
+    }
+
+    count = OsExecNameMatch(dirOpen, strCmp, strOutput, &maxLen);
+    /* one or more matched */
+    if (count >= 1) {
+        OsCompleteStr(strOutput, strCmp, cmdKey, len);
+
+        if (count == 1) {
+            (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+            return 1;
+        }
+        if (OsPrintMatchList((UINT32)count, dirOpen, strCmp, maxLen) == -1) {
+            (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+            return (INT32)OS_ERROR;
+        }
+    }
+
+    (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+    return count;
+}
+#else
+STATIC INT32 OsTabMatchFile(CHAR *cmdKey, UINT32 *len)
+{
+    return 0;
+}
+#endif
+
+STATIC INT32 OsTabMatchCmd(CHAR *cmdKey, UINT32 *len)
+{
+    INT32 count = 0;
+    INT32 ret;
+    CmdItemNode *cmdItemGuard = NULL;
+    CmdItemNode *curCmdItem = NULL;
+    CHAR *cmdMajor = cmdKey;
+
+    while (*cmdMajor == SPACE) { /* cut left space */
+        cmdMajor++;
+    }
+
+    if (LOS_ListEmpty(&g_cmdInfo.cmdList.list)) {
+        return (INT32)OS_ERROR;
+    }
+
+    LOS_DL_LIST_FOR_EACH_ENTRY(curCmdItem, &g_cmdInfo.cmdList.list, CmdItemNode, list) {
+        if (strncmp(cmdMajor, curCmdItem->cmd->cmdKey, strlen(cmdMajor)) > 0) {
+            continue;
+        }
+
+        if (strncmp(cmdMajor, curCmdItem->cmd->cmdKey, strlen(cmdMajor)) != 0) {
+            break;
+        }
+
+        if (count == 0) {
+            cmdItemGuard = curCmdItem;
+        }
+        ++count;
+    }
+
+    if (cmdItemGuard == NULL) {
+        return 0;
+    }
+
+    if (count == 1) {
+        OsCompleteStr(cmdItemGuard->cmd->cmdKey, cmdMajor, cmdKey, len);
+    }
+
+    ret = count;
+    if (count > 1) {
+        PRINTK("\n");
+        while (count--) {
+            PRINTK("%s  ", cmdItemGuard->cmd->cmdKey);
+            cmdItemGuard = LOS_DL_LIST_ENTRY(cmdItemGuard->list.pstNext, CmdItemNode, list);
+        }
+        PRINTK("\n");
+    }
+
+    return ret;
+}
+
+/*
+ * Description: Pass in the string and clear useless space, which include:
+ *                1) The overmatch space which is not be marked by Quote's area
+ *                   Squeeze the overmatch space into one space
+ *                2) Clear all space before first valid character
+ * Input:       cmdKey : Pass in the buff string, which is ready to be operated
+ *              cmdOut : Pass out the buffer string ,which has already been operated
+ *              size : cmdKey length
+ */
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdKeyShift(const CHAR *cmdKey, CHAR *cmdOut, UINT32 size)
+{
+    CHAR *output = NULL;
+    CHAR *outputBak = NULL;
+    UINT32 len;
+    INT32 ret;
+    BOOL quotes = FALSE;
+
+    if ((cmdKey == NULL) || (cmdOut == NULL)) {
+        return OS_ERROR;
+    }
+
+    len = strlen(cmdKey);
+    if (len >= size) {
+        return OS_ERROR;
+    }
+    output = (CHAR*)LOS_MemAlloc(m_aucSysMem0, len + 1);
+    if (output == NULL) {
+        PRINTK("malloc failure in %s[%d]", __FUNCTION__, __LINE__);
+        return OS_ERROR;
+    }
+    /* Backup the 'output' start address */
+    outputBak = output;
+    /* Scan each character in 'cmdKey',and squeeze the overmuch space and ignore Invalid character */
+    for (; *cmdKey != '\0'; cmdKey++) {
+        /* Detected a Double Quotes, switch the matching status */
+        if (*cmdKey == '\"') {
+            SWITCH_QUOTES_STATUS(quotes);
+        }
+        /* Ignore the current character in following situation */
+        /* 1) Quotes matching status is FALSE (which said that the space is not been marked by double quotes) */
+        /* 2) Current character is a space */
+        /* 3) Next character is a space too, or the string is been seeked to the end already(\0) */
+        /* 4) Invalid character, such as single quotes */
+        if ((*cmdKey == ' ') && ((*(cmdKey + 1) == ' ') || (*(cmdKey + 1) == '\0')) && QUOTES_STATUS_CLOSE(quotes)) {
+            continue;
+        }
+        if (*cmdKey == '\'') {
+            continue;
+        }
+        *output = *cmdKey;
+        output++;
+    }
+    *output = '\0';
+    /* Restore the 'output' start address */
+    output = outputBak;
+    len = strlen(output);
+    /* Clear the space which is located at the first character in buffer */
+    if (*output == ' ') {
+        output++;
+        len--;
+    }
+    /* Copy out the buffer which is been operated already */
+    ret = strncpy_s(cmdOut, size, output, len);
+    if (ret != EOK) {
+        PRINT_ERR("%s,%d strncpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+        (VOID)LOS_MemFree(m_aucSysMem0, outputBak);
+        return OS_ERROR;
+    }
+
+    (VOID)LOS_MemFree(m_aucSysMem0, outputBak);
+
+    return LOS_OK;
+}
+
+LITE_OS_SEC_TEXT_MINOR BOOL OsCmdKeyCheck(CHAR *cmdKey)
+{
+    CHAR *temp = cmdKey;
+    enum Stat {
+        STAT_NONE,
+        STAT_DIGIT,
+        STAT_OTHER
+    } state = STAT_NONE;
+
+    if (strlen(cmdKey) >= CMD_KEY_LEN) {
+        return FALSE;
+    }
+
+    while (*temp != '\0') {
+        if (!((*temp <= '9') && (*temp >= '0')) &&
+            !((*temp <= 'z') && (*temp >= 'a')) &&
+            !((*temp <= 'Z') && (*temp >= 'A')) &&
+            (*temp != '_') && (*temp != '-')) {
+            return FALSE;
+        }
+
+        if ((*temp >= '0') && (*temp <= '9')) {
+            if (state == STAT_NONE) {
+                state = STAT_DIGIT;
+            }
+        } else {
+            state = STAT_OTHER;
+        }
+
+        temp++;
+    }
+
+    if (state == STAT_DIGIT) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+LITE_OS_SEC_TEXT_MINOR INT32 OsTabCompletion(CHAR *cmdKey, UINT32 *len)
+{
+    INT32 count = 0;
+    CHAR *space = NULL;
+    CHAR *cmdMainStr = cmdKey;
+
+    if ((cmdKey == NULL) || (len == NULL)) {
+        return (INT32)OS_ERROR;
+    }
+
+    /* cut left space */
+    while (*cmdMainStr == SPACE) {
+        cmdMainStr++;
+    }
+
+    /* try to find space in remain */
+    space = strrchr(cmdMainStr, SPACE);
+    if ((space == NULL) && (*cmdMainStr != '\0')) {
+        count = OsTabMatchCmd(cmdKey, len);
+    }
+
+    if (count == 0) {
+        count = OsTabMatchFile(cmdKey, len);
+    }
+
+    return count;
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID OsCmdAscendingInsert(CmdItemNode *cmd)
+{
+    CmdItemNode *cmdItem = NULL;
+    CmdItemNode *cmdNext = NULL;
+
+    for (cmdItem = LOS_DL_LIST_ENTRY((&g_cmdInfo.cmdList.list)->pstPrev, CmdItemNode, list);
+         &cmdItem->list != &g_cmdInfo.cmdList.list;) {
+        cmdNext = LOS_DL_LIST_ENTRY(cmdItem->list.pstPrev, CmdItemNode, list);
+        if (&cmdNext->list != &g_cmdInfo.cmdList.list) {
+            if ((strncmp(cmdItem->cmd->cmdKey, cmd->cmd->cmdKey, strlen(cmd->cmd->cmdKey)) >= 0) &&
+                (strncmp(cmdNext->cmd->cmdKey, cmd->cmd->cmdKey, strlen(cmd->cmd->cmdKey)) < 0)) {
+                LOS_ListTailInsert(&cmdItem->list, &cmd->list);
+                return;
+            }
+            cmdItem = cmdNext;
+        } else {
+            if (strncmp(cmd->cmd->cmdKey, cmdItem->cmd->cmdKey, strlen(cmd->cmd->cmdKey)) > 0) {
+                cmdItem = cmdNext;
+            }
+            break;
+        }
+    }
+
+    LOS_ListTailInsert(&cmdItem->list, &cmd->list);
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsShellKeyInit(ShellCB *shellCB)
+{
+    CmdKeyLink *cmdKeyLink = NULL;
+    CmdKeyLink *cmdHistoryLink = NULL;
+
+    cmdKeyLink = (CmdKeyLink *)LOS_MemAlloc(m_aucSysMem0, sizeof(CmdKeyLink));
+    if (cmdKeyLink == NULL) {
+        PRINT_ERR("Shell CmdKeyLink memory alloc error!\n");
+        return OS_ERROR;
+    }
+    cmdHistoryLink = (CmdKeyLink *)LOS_MemAlloc(m_aucSysMem0, sizeof(CmdKeyLink));
+    if (cmdHistoryLink == NULL) {
+        (VOID)LOS_MemFree(m_aucSysMem0, cmdKeyLink);
+        PRINT_ERR("Shell CmdHistoryLink memory alloc error!\n");
+        return OS_ERROR;
+    }
+
+    cmdKeyLink->count = 0;
+    LOS_ListInit(&cmdKeyLink->list);
+    shellCB->cmdKeyLink = (VOID *)cmdKeyLink;
+
+    cmdHistoryLink->count = 0;
+    LOS_ListInit(&cmdHistoryLink->list);
+    shellCB->cmdHistoryKeyLink = (VOID *)cmdHistoryLink;
+    shellCB->cmdMaskKeyLink = (VOID *)cmdHistoryLink;
+    return LOS_OK;
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID OsShellKeyLinkDeInit(CmdKeyLink *cmdKeyLink)
+{
+    CmdKeyLink *cmd = NULL;
+
+    while (!LOS_ListEmpty(&cmdKeyLink->list)) {
+        cmd = LOS_DL_LIST_ENTRY(cmdKeyLink->list.pstNext, CmdKeyLink, list);
+        LOS_ListDelete(&cmd->list);
+        (VOID)LOS_MemFree(m_aucSysMem0, cmd);
+    }
+
+    cmdKeyLink->count = 0;
+    (VOID)LOS_MemFree(m_aucSysMem0, cmdKeyLink);
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID OsShellKeyDeInit(const ShellCB *shellCB)
+{
+    OsShellKeyLinkDeInit(shellCB->cmdKeyLink);
+    OsShellKeyLinkDeInit(shellCB->cmdHistoryKeyLink);
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsShellSysCmdRegister(VOID)
+{
+    UINT32 i;
+    UINT8 *cmdItemGroup = NULL;
+    UINT32 index = ((UINTPTR)(&g_shellcmdEnd) - (UINTPTR)(&g_shellcmd[0])) / sizeof(CmdItem);
+    CmdItemNode *cmdItem = NULL;
+
+    cmdItemGroup = (UINT8 *)LOS_MemAlloc(m_aucSysMem0, index * sizeof(CmdItemNode));
+    if (cmdItemGroup == NULL) {
+        PRINT_ERR("[%s]System memory allocation failure!\n", __FUNCTION__);
+        return (UINT32)OS_ERROR;
+    }
+
+    for (i = 0; i < index; ++i) {
+        cmdItem = (CmdItemNode *)(cmdItemGroup + i * sizeof(CmdItemNode));
+        cmdItem->cmd = &g_shellcmd[i];
+        OsCmdAscendingInsert(cmdItem);
+    }
+    g_cmdInfo.listNum += index;
+    return LOS_OK;
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID OsShellCmdPush(const CHAR *string, CmdKeyLink *cmdKeyLink)
+{
+    CmdKeyLink *cmdNewNode = NULL;
+    UINT32 len;
+
+    if ((string == NULL) || (strlen(string) == 0)) {
+        return;
+    }
+
+    len = strlen(string);
+    cmdNewNode = (CmdKeyLink *)LOS_MemAlloc(m_aucSysMem0, sizeof(CmdKeyLink) + len + 1);
+    if (cmdNewNode == NULL) {
+        return;
+    }
+
+    (VOID)memset_s(cmdNewNode, sizeof(CmdKeyLink) + len + 1, 0, sizeof(CmdKeyLink) + len + 1);
+    if (strncpy_s(cmdNewNode->cmdString, len + 1, string, len) != EOK) {
+        (VOID)LOS_MemFree(m_aucSysMem0, cmdNewNode);
+        return;
+    }
+
+    LOS_ListTailInsert(&cmdKeyLink->list, &cmdNewNode->list);
+
+    return;
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID OsShellHistoryShow(UINT32 value, ShellCB *shellCB)
+{
+    CmdKeyLink *cmd = NULL;
+    CmdKeyLink *cmdNode = shellCB->cmdHistoryKeyLink;
+    CmdKeyLink *cmdMask = shellCB->cmdMaskKeyLink;
+    errno_t ret;
+
+    (VOID)pthread_mutex_lock(&shellCB->historyMutex);
+    if (value == CMD_KEY_DOWN) {
+        if (cmdMask == cmdNode) {
+            goto END;
+        }
+
+        cmd = LOS_DL_LIST_ENTRY(cmdMask->list.pstNext, CmdKeyLink, list);
+        if (cmd != cmdNode) {
+            cmdMask = cmd;
+        } else {
+            goto END;
+        }
+    } else if (value == CMD_KEY_UP) {
+        cmd = LOS_DL_LIST_ENTRY(cmdMask->list.pstPrev, CmdKeyLink, list);
+        if (cmd != cmdNode) {
+            cmdMask = cmd;
+        } else {
+            goto END;
+        }
+    }
+
+    while (shellCB->shellBufOffset--) {
+        PRINTK("\b \b");
+    }
+    PRINTK("%s", cmdMask->cmdString);
+    shellCB->shellBufOffset = strlen(cmdMask->cmdString);
+    (VOID)memset_s(shellCB->shellBuf, SHOW_MAX_LEN, 0, SHOW_MAX_LEN);
+    ret = memcpy_s(shellCB->shellBuf, SHOW_MAX_LEN, cmdMask->cmdString, shellCB->shellBufOffset);
+    if (ret != EOK) {
+        PRINT_ERR("%s, %d memcpy failed!\n", __FUNCTION__, __LINE__);
+        goto END;
+    }
+    shellCB->cmdMaskKeyLink = (VOID *)cmdMask;
+
+END:
+    (VOID)pthread_mutex_unlock(&shellCB->historyMutex);
+    return;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdExec(CmdParsed *cmdParsed, CHAR *cmdStr)
+{
+    UINT32 ret;
+    CmdCallBackFunc cmdHook = NULL;
+    CmdItemNode *curCmdItem = NULL;
+    CHAR *cmdKey = NULL;
+
+    if ((cmdStr == NULL) || (strlen(cmdStr) == 0)) {
+        return (UINT32)OS_ERROR;
+    }
+
+    ret = OsCmdParse(cmdStr, cmdParsed);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    LOS_DL_LIST_FOR_EACH_ENTRY(curCmdItem, &g_cmdInfo.cmdList.list, CmdItemNode, list) {
+        cmdKey = curCmdItem->cmd->cmdKey;
+        if ((cmdParsed->cmdType == curCmdItem->cmd->cmdType) &&
+            (strlen(cmdKey) == strlen(cmdParsed->cmdKeyword)) &&
+            (strncmp(cmdKey, (CHAR *)(cmdParsed->cmdKeyword), strlen(cmdKey)) == 0)) {
+            cmdHook = curCmdItem->cmd->cmdHook;
+            break;
+        }
+    }
+
+    ret = OS_ERROR;
+    if (cmdHook != NULL) {
+        ret = (cmdHook)(cmdParsed->paramCnt, (const CHAR **)cmdParsed->paramArray);
+    }
+    OsFreeCmdPara(cmdParsed);
+
+    return (UINT32)ret;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdInit(VOID)
+{
+    UINT32 ret;
+    LOS_ListInit(&(g_cmdInfo.cmdList.list));
+    g_cmdInfo.listNum = 0;
+    g_cmdInfo.muxLock = 0;
+    g_cmdInfo.initMagicFlag = SHELL_INIT_MAGIC_FLAG;
+    ret = LOS_MuxCreate(&g_cmdInfo.muxLock);
+    if (ret != LOS_OK) {
+        PRINT_ERR("Create mutex for shell cmd info failed\n");
+        return OS_ERROR;
+    }
+    return LOS_OK;
+}
+
+STATIC UINT32 OsCmdItemCreate(CmdType cmdType, CHAR *cmdKey, UINT32 paraNum, CmdCallBackFunc cmdProc)
+{
+    CmdItem *cmdItem = NULL;
+    CmdItemNode *cmdItemNode = NULL;
+
+    cmdItem = (CmdItem *)LOS_MemAlloc(m_aucSysMem0, sizeof(CmdItem));
+    if (cmdItem == NULL) {
+        return OS_ERRNO_SHELL_CMDREG_MEMALLOC_ERROR;
+    }
+    (VOID)memset_s(cmdItem, sizeof(CmdItem), '\0', sizeof(CmdItem));
+
+    cmdItemNode = (CmdItemNode *)LOS_MemAlloc(m_aucSysMem0, sizeof(CmdItemNode));
+    if (cmdItemNode == NULL) {
+        (VOID)LOS_MemFree(m_aucSysMem0, cmdItem);
+        return OS_ERRNO_SHELL_CMDREG_MEMALLOC_ERROR;
+    }
+    (VOID)memset_s(cmdItemNode, sizeof(CmdItemNode), '\0', sizeof(CmdItemNode));
+    cmdItemNode->cmd = cmdItem;
+    cmdItemNode->cmd->cmdHook = cmdProc;
+    cmdItemNode->cmd->paraNum = paraNum;
+    cmdItemNode->cmd->cmdType = cmdType;
+    cmdItemNode->cmd->cmdKey = cmdKey;
+
+    (VOID)LOS_MuxPend(g_cmdInfo.muxLock, LOS_WAIT_FOREVER);
+    OsCmdAscendingInsert(cmdItemNode);
+    g_cmdInfo.listNum++;
+    (VOID)LOS_MuxPost(g_cmdInfo.muxLock);
+
+    return LOS_OK;
+}
+
+/* open API */
+LITE_OS_SEC_TEXT_MINOR UINT32 osCmdReg(CmdType cmdType, CHAR *cmdKey, UINT32 paraNum, CmdCallBackFunc cmdProc)
+{
+    CmdItemNode *cmdItemNode = NULL;
+
+    (VOID)LOS_MuxPend(g_cmdInfo.muxLock, LOS_WAIT_FOREVER);
+    if (g_cmdInfo.initMagicFlag != SHELL_INIT_MAGIC_FLAG) {
+        (VOID)LOS_MuxPost(g_cmdInfo.muxLock);
+        PRINT_ERR("[%s] shell is not yet initialized!\n", __FUNCTION__);
+        return OS_ERRNO_SHELL_NOT_INIT;
+    }
+    (VOID)LOS_MuxPost(g_cmdInfo.muxLock);
+
+    if ((cmdProc == NULL) || (cmdKey == NULL) ||
+        (cmdType >= CMD_TYPE_BUTT) || (strlen(cmdKey) >= CMD_KEY_LEN) || !strlen(cmdKey)) {
+        return OS_ERRNO_SHELL_CMDREG_PARA_ERROR;
+    }
+
+    if ((paraNum > CMD_MAX_PARAS) && (paraNum != XARGS)) {
+        return OS_ERRNO_SHELL_CMDREG_PARA_ERROR;
+    }
+
+    if (OsCmdKeyCheck(cmdKey) != TRUE) {
+        return OS_ERRNO_SHELL_CMDREG_CMD_ERROR;
+    }
+
+    (VOID)LOS_MuxPend(g_cmdInfo.muxLock, LOS_WAIT_FOREVER);
+    LOS_DL_LIST_FOR_EACH_ENTRY(cmdItemNode, &g_cmdInfo.cmdList.list, CmdItemNode, list) {
+        if ((cmdType == cmdItemNode->cmd->cmdType) &&
+            ((strlen(cmdKey) == strlen(cmdItemNode->cmd->cmdKey)) &&
+            (strncmp((CHAR *)(cmdItemNode->cmd->cmdKey), cmdKey, strlen(cmdKey)) == 0))) {
+            (VOID)LOS_MuxPost(g_cmdInfo.muxLock);
+            return OS_ERRNO_SHELL_CMDREG_CMD_EXIST;
+        }
+    }
+    (VOID)LOS_MuxPost(g_cmdInfo.muxLock);
+
+    return OsCmdItemCreate(cmdType, cmdKey, paraNum, cmdProc);
+}
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
+ * Description: MagicKey Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2019-02-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "magickey.h"
+#include "los_task_pri.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#ifdef LOSCFG_ENABLE_MAGICKEY
+
+#define MAGIC_KEY_NUM 5
+
+STATIC VOID OsMagicHelp(VOID);
+STATIC VOID OsMagicTaskShow(VOID);
+STATIC VOID OsMagicPanic(VOID);
+STATIC VOID OsMagicMemCheck(VOID);
+
+STATIC MagicKeyOp g_magicMemCheckOp = {
+    .opHandler = OsMagicMemCheck,
+    .helpMsg = "Check system memory(ctrl+e) ",
+    .magicKey = 0x05 /* ctrl + e */
+};
+
+STATIC MagicKeyOp g_magicPanicOp = {
+    .opHandler = OsMagicPanic,
+    .helpMsg = "System panic(ctrl+p) ",
+    .magicKey = 0x10 /* ctrl + p */
+};
+
+STATIC MagicKeyOp g_magicTaskShowOp = {
+    .opHandler = OsMagicTaskShow,
+    .helpMsg = "Show task information(ctrl+t) ",
+    .magicKey = 0x14 /* ctrl + t */
+};
+
+STATIC MagicKeyOp g_magicHelpOp = {
+    .opHandler = OsMagicHelp,
+    .helpMsg = "Show all magic op key(ctrl+z) ",
+    .magicKey = 0x1a /* ctrl + z */
+};
+
+/*
+ * NOTICE:Suggest don't use
+ * ctrl+h/backspace=0x8,
+ * ctrl+i/tab=0x9,
+ * ctrl+m/enter=0xd,
+ * ctrl+n/shift out=0xe,
+ * ctrl+o/shift in=0xf,
+ * ctrl+[/esc=0x1b,
+ * ctrl+] used for telnet commond mode;
+ */
+STATIC MagicKeyOp *g_magicOpTable[MAGIC_KEY_NUM] = {
+    &g_magicMemCheckOp, /* ctrl + e */
+    &g_magicPanicOp,    /* ctrl + p */
+    &g_magicTaskShowOp, /* ctrl + t */
+    &g_magicHelpOp,     /* ctrl + z */
+    NULL                /* rserved */
+};
+
+STATIC VOID OsMagicHelp(VOID)
+{
+    INT32 i;
+    PRINTK("HELP: ");
+    for (i = 0; g_magicOpTable[i] != NULL; ++i) {
+        PRINTK("%s ", g_magicOpTable[i]->helpMsg);
+    }
+    PRINTK("\n");
+    return;
+}
+
+STATIC VOID OsMagicTaskShow(VOID)
+{
+    (VOID)OsShellCmdDumpTask(0, NULL);
+    return;
+}
+
+STATIC VOID OsMagicPanic(VOID)
+{
+    LOS_Panic("Magic key :\n");
+    return;
+}
+
+STATIC VOID OsMagicMemCheck(VOID)
+{
+    if (LOS_MemIntegrityCheck(m_aucSysMem1) == LOS_OK) {
+        PRINTK("system memcheck over, all passed!\n");
+    }
+    return;
+}
+#endif
+
+INT32 CheckMagicKey(CHAR key)
+{
+#ifdef LOSCFG_ENABLE_MAGICKEY
+    INT32 i;
+    STATIC UINT32 magicKeySwitch = 0;
+    if (key == 0x12) { /* ctrl + r */
+        magicKeySwitch = ~magicKeySwitch;
+        if (magicKeySwitch != 0) {
+            PRINTK("Magic key on\n");
+        } else {
+            PRINTK("Magic key off\n");
+        }
+        return 1;
+    }
+    if (magicKeySwitch != 0) {
+        for (i = 0; g_magicOpTable[i] != NULL; ++i) {
+            if (key == g_magicOpTable[i]->magicKey) {
+                (g_magicOpTable[i])->opHandler();
+                return 1;
+            }
+        }
+    }
+#endif
+    return 0;
+}
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Dmesg Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+/*
+ *  +-------------------------------------------------------+
+ *  | Info |          log_space                             |
+ *  +-------------------------------------------------------+
+ *  |
+ *  |__buffer_space
+ *
+ * Case A:
+ *  +-------------------------------------------------------+
+ *  |           |#############################|             |
+ *  +-------------------------------------------------------+
+ *              |                             |
+ *             Head                           Tail
+ * Case B:
+ *  +-------------------------------------------------------+
+ *  |##########|                                    |#######|
+ *  +-------------------------------------------------------+
+ *             |                                    |
+ *             Tail                                 Head
+ */
+
+#ifdef LOSCFG_SHELL_DMESG
+#include "dmesg_pri.h"
+#include "unistd.h"
+#include "stdlib.h"
+#include "stdio.h"
+#include "fcntl.h"
+#include "securec.h"
+#include "los_task.h"
+#include "uart.h"
+#ifdef LOSCFG_FS_VFS
+#include "inode/inode.h"
+#endif
+#include "show.h"
+#include "shcmd.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#define BUF_MAX_INDEX (g_logBufSize - 1)
+
+LITE_OS_SEC_BSS STATIC SPIN_LOCK_INIT(g_dmesgSpin);
+
+STATIC DmesgInfo *g_dmesgInfo = NULL;
+STATIC UINT32 g_logBufSize = 0;
+STATIC VOID *g_mallocAddr = NULL;
+STATIC UINT32 g_dmesgLogLevel = 3;
+STATIC UINT32 g_consoleLock = 0;
+STATIC UINT32 g_uartLock = 0;
+STATIC const CHAR *g_levelString[] = {
+    "EMG",
+    "COMMOM",
+    "ERR",
+    "WARN",
+    "INFO",
+    "DEBUG"
+};
+
+STATIC VOID OsLockConsole(VOID)
+{
+    g_consoleLock = 1;
+}
+
+STATIC VOID OsUnlockConsole(VOID)
+{
+    g_consoleLock = 0;
+}
+
+STATIC VOID OsLockUart(VOID)
+{
+    g_uartLock = 1;
+}
+
+STATIC VOID OsUnlockUart(VOID)
+{
+    g_uartLock = 0;
+}
+
+STATIC UINT32 OsCheckError(VOID)
+{
+    if (g_dmesgInfo == NULL) {
+        return LOS_NOK;
+    }
+
+    if (g_dmesgInfo->logSize > g_logBufSize) {
+        return LOS_NOK;
+    }
+
+    if (((g_dmesgInfo->logSize == g_logBufSize) || (g_dmesgInfo->logSize == 0)) &&
+        (g_dmesgInfo->logTail != g_dmesgInfo->logHead)) {
+        return LOS_NOK;
+    }
+
+    return LOS_OK;
+}
+
+STATIC INT32 OsDmesgRead(CHAR *buf, UINT32 len)
+{
+    UINT32 readLen;
+    UINT32 logSize = g_dmesgInfo->logSize;
+    UINT32 head = g_dmesgInfo->logHead;
+    UINT32 tail = g_dmesgInfo->logTail;
+    CHAR *logBuf = g_dmesgInfo->logBuf;
+    errno_t ret;
+
+    if (OsCheckError()) {
+        return -1;
+    }
+    if (logSize == 0) {
+        return 0;
+    }
+
+    readLen = len < logSize ? len : logSize;
+
+    if (head < tail) { /* Case A */
+        ret = memcpy_s(buf, len, logBuf + head, readLen);
+        if (ret != EOK) {
+            return -1;
+        }
+        g_dmesgInfo->logHead += readLen;
+        g_dmesgInfo->logSize -= readLen;
+    } else { /* Case B */
+        if (readLen <= (g_logBufSize - head)) {
+            ret = memcpy_s(buf, len, logBuf + head, readLen);
+            if (ret != EOK) {
+                return -1;
+            }
+            g_dmesgInfo->logHead += readLen;
+            g_dmesgInfo->logSize -= readLen;
+        } else {
+            ret = memcpy_s(buf, len, logBuf + head, g_logBufSize - head);
+            if (ret != EOK) {
+                return -1;
+            }
+
+            ret = memcpy_s(buf + g_logBufSize - head, len - (g_logBufSize - head),
+                           logBuf, readLen - (g_logBufSize - head));
+            if (ret != EOK) {
+                return -1;
+            }
+            g_dmesgInfo->logHead = readLen - (g_logBufSize - head);
+            g_dmesgInfo->logSize -= readLen;
+        }
+    }
+    return (INT32)readLen;
+}
+
+STATIC INT32 OsCopyToNew(VOID *addr, UINT32 size)
+{
+    UINT32 copyStart = 0;
+    UINT32 copyLen;
+    CHAR *temp = NULL;
+    CHAR *newBuf = (CHAR *)addr + sizeof(DmesgInfo);
+    UINT32 bufSize = size - sizeof(DmesgInfo);
+    INT32 ret;
+
+    if (g_dmesgInfo->logSize == 0) {
+        return 0;
+    }
+
+    temp = (CHAR *)malloc(g_dmesgInfo->logSize);
+    if (temp == NULL) {
+        return -1;
+    }
+
+    (VOID)memset_s(temp, g_dmesgInfo->logSize, 0, g_dmesgInfo->logSize);
+    copyLen = ((bufSize < g_dmesgInfo->logSize) ? bufSize : g_dmesgInfo->logSize);
+    if (bufSize < g_dmesgInfo->logSize) {
+        copyStart = g_dmesgInfo->logSize - bufSize;
+    }
+
+    ret = OsDmesgRead(temp, g_dmesgInfo->logSize);
+    if (ret <= 0) {
+        PRINT_ERR("%s,%d failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+        free(temp);
+        return -1;
+    }
+
+    /* if new buf size smaller than logSize */
+    ret = memcpy_s(newBuf, bufSize, temp + copyStart, copyLen);
+    if (ret != EOK) {
+        PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+        free(temp);
+        return -1;
+    }
+    free(temp);
+
+    return (INT32)copyLen;
+}
+
+STATIC UINT32 OsDmesgResetMem(VOID *addr, UINT32 size)
+{
+    VOID *temp = NULL;
+    INT32 copyLen;
+    UINT32 intSave;
+
+    if (size <= sizeof(DmesgInfo)) {
+        return LOS_NOK;
+    }
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    temp = g_dmesgInfo;
+    copyLen = OsCopyToNew(addr, size);
+    if (copyLen < 0) {
+        LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+        return LOS_NOK;
+    }
+
+    g_logBufSize = size - sizeof(DmesgInfo);
+    g_dmesgInfo = (DmesgInfo *)addr;
+    g_dmesgInfo->logBuf = (CHAR *)addr + sizeof(DmesgInfo);
+    g_dmesgInfo->logSize = copyLen;
+    g_dmesgInfo->logTail = ((copyLen == g_logBufSize) ? 0 : copyLen);
+    g_dmesgInfo->logHead = 0;
+
+    /* if old mem came from malloc */
+    if (temp == g_mallocAddr) {
+        free(temp);
+        g_mallocAddr = NULL;
+    }
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+
+    return LOS_OK;
+}
+
+STATIC UINT32 OsDmesgChangeSize(UINT32 size)
+{
+    VOID *temp = NULL;
+    INT32 copyLen;
+    CHAR *newString = NULL;
+    UINT32 intSave;
+
+    if (size == 0) {
+        return LOS_NOK;
+    }
+
+    newString = (CHAR *)malloc(size + sizeof(DmesgInfo));
+    if (newString == NULL) {
+        return LOS_NOK;
+    }
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    temp = g_dmesgInfo;
+
+    copyLen = OsCopyToNew(newString, size + sizeof(DmesgInfo));
+    if (copyLen < 0) {
+        LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+        free(newString);
+        return LOS_NOK;
+    }
+
+    g_logBufSize = size;
+    g_dmesgInfo = (DmesgInfo *)newString;
+    g_dmesgInfo->logBuf = (CHAR *)newString + sizeof(DmesgInfo);
+    g_dmesgInfo->logSize = copyLen;
+    g_dmesgInfo->logTail = ((copyLen == g_logBufSize) ? 0 : copyLen);
+    g_dmesgInfo->logHead = 0;
+
+    if (temp == g_mallocAddr) {
+        free(temp);
+    }
+    g_mallocAddr = newString;
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+
+    return LOS_OK;
+}
+
+UINT32 OsCheckConsoleLock(VOID)
+{
+    return g_consoleLock;
+}
+
+UINT32 OsCheckUartLock(VOID)
+{
+    return g_uartLock;
+}
+
+UINT32 OsDmesgInit(VOID)
+{
+    CHAR* buffer = NULL;
+
+    buffer = (CHAR *)malloc(KERNEL_LOG_BUF_SIZE + sizeof(DmesgInfo));
+    if (buffer == NULL) {
+        return LOS_NOK;
+    }
+    g_mallocAddr = buffer;
+    g_dmesgInfo = (DmesgInfo *)buffer;
+    g_dmesgInfo->logHead = 0;
+    g_dmesgInfo->logTail = 0;
+    g_dmesgInfo->logSize = 0;
+    g_dmesgInfo->logBuf = buffer + sizeof(DmesgInfo);
+    g_logBufSize = KERNEL_LOG_BUF_SIZE;
+
+    return LOS_OK;
+}
+
+STATIC CHAR OsLogRecordChar(CHAR c)
+{
+    *(g_dmesgInfo->logBuf + g_dmesgInfo->logTail++) = c;
+
+    if (g_dmesgInfo->logTail > BUF_MAX_INDEX) {
+        g_dmesgInfo->logTail = 0;
+    }
+
+    if (g_dmesgInfo->logSize < g_logBufSize) {
+        (g_dmesgInfo->logSize)++;
+    } else {
+        g_dmesgInfo->logHead = g_dmesgInfo->logTail;
+    }
+    return c;
+}
+
+UINT32 OsLogRecordStr(const CHAR *str, UINT32 len)
+{
+    UINT32 i = 0;
+    UINTPTR intSave;
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    while (len--) {
+        (VOID)OsLogRecordChar(str[i]);
+        i++;
+    }
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+    return i;
+}
+
+STATIC VOID OsBufFullWrite(const CHAR *dst, UINT32 logLen)
+{
+    UINT32 bufSize = g_logBufSize;
+    UINT32 tail = g_dmesgInfo->logTail;
+    CHAR *buf = g_dmesgInfo->logBuf;
+    errno_t ret;
+
+    if ((logLen == 0) || (dst == NULL)) {
+        return;
+    }
+    if (logLen > bufSize) { /* full re-write */
+        ret = memcpy_s(buf + tail, bufSize - tail, dst, bufSize - tail);
+        if (ret != EOK) {
+            PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+            return;
+        }
+        ret = memcpy_s(buf, bufSize, dst + bufSize - tail, tail);
+        if (ret != EOK) {
+            PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+            return;
+        }
+
+        OsBufFullWrite(dst + bufSize, logLen - bufSize);
+    } else {
+        if (logLen > (bufSize - tail)) { /* need cycle back to start */
+            ret = memcpy_s(buf + tail, bufSize - tail, dst, bufSize - tail);
+            if (ret != EOK) {
+                PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+                return;
+            }
+            ret = memcpy_s(buf, bufSize, dst + bufSize - tail, logLen - (bufSize - tail));
+            if (ret != EOK) {
+                PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+                return;
+            }
+
+            g_dmesgInfo->logTail = logLen - (bufSize - tail);
+            g_dmesgInfo->logHead = g_dmesgInfo->logTail;
+        } else { /* no need cycle back to start */
+            ret = memcpy_s(buf + tail, bufSize - tail, dst, logLen);
+            if (ret != EOK) {
+                PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+                return;
+            }
+            g_dmesgInfo->logTail += logLen;
+            if (g_dmesgInfo->logTail > BUF_MAX_INDEX) {
+                g_dmesgInfo->logTail = 0;
+            }
+            g_dmesgInfo->logHead = g_dmesgInfo->logTail;
+        }
+    }
+}
+
+STATIC VOID OsWriteTailToHead(const CHAR *dst, UINT32 logLen)
+{
+    UINT32 writeLen;
+    UINT32 bufSize = g_logBufSize;
+    UINT32 logSize = g_dmesgInfo->logSize;
+    UINT32 tail = g_dmesgInfo->logTail;
+    CHAR *buf = g_dmesgInfo->logBuf;
+    errno_t ret;
+
+    if ((logLen == 0) || (dst == NULL)) {
+        return;
+    }
+    if (logLen > (bufSize - logSize)) { /* space-need > space-remain */
+        writeLen = bufSize - logSize;
+        ret = memcpy_s(buf + tail, bufSize - tail, dst, writeLen);
+        if (ret != EOK) {
+            PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+            return;
+        }
+
+        g_dmesgInfo->logTail = g_dmesgInfo->logHead;
+        g_dmesgInfo->logSize = g_logBufSize;
+        OsBufFullWrite(dst + writeLen, logLen - writeLen);
+    } else {
+        ret = memcpy_s(buf + tail, bufSize - tail, dst, logLen);
+        if (ret != EOK) {
+            PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+            return;
+        }
+
+        g_dmesgInfo->logTail += logLen;
+        g_dmesgInfo->logSize += logLen;
+    }
+}
+
+STATIC VOID OsWriteTailToEnd(const CHAR *dst, UINT32 logLen)
+{
+    UINT32 writeLen;
+    UINT32 bufSize = g_logBufSize;
+    UINT32 tail = g_dmesgInfo->logTail;
+    CHAR *buf = g_dmesgInfo->logBuf;
+    errno_t ret;
+
+    if ((logLen == 0) || (dst == NULL)) {
+        return;
+    }
+    if (logLen >= (bufSize - tail)) { /* need cycle to start ,then became B */
+        writeLen = bufSize - tail;
+        ret = memcpy_s(buf + tail, writeLen, dst, writeLen);
+        if (ret != EOK) {
+            PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+            return;
+        }
+
+        g_dmesgInfo->logSize += writeLen;
+        g_dmesgInfo->logTail = 0;
+        if (g_dmesgInfo->logSize == g_logBufSize) { /* Tail = Head is 0 */
+            OsBufFullWrite(dst + writeLen, logLen - writeLen);
+        } else {
+            OsWriteTailToHead(dst + writeLen, logLen - writeLen);
+        }
+    } else { /* just do serial copy */
+        ret = memcpy_s(buf + tail, bufSize - tail, dst, logLen);
+        if (ret != EOK) {
+            PRINT_ERR("%s,%d memcpy_s failed, err:%d!\n", __FUNCTION__, __LINE__, ret);
+            return;
+        }
+
+        g_dmesgInfo->logTail += logLen;
+        g_dmesgInfo->logSize += logLen;
+    }
+}
+
+INT32 OsLogMemcpyRecord(const CHAR *buf, UINT32 logLen)
+{
+    UINT32 intSave;
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    if (OsCheckError()) {
+        LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+        return -1;
+    }
+    if (g_dmesgInfo->logSize < g_logBufSize) {
+        if (g_dmesgInfo->logHead <= g_dmesgInfo->logTail) {
+            OsWriteTailToEnd(buf, logLen);
+        } else {
+            OsWriteTailToHead(buf, logLen);
+        }
+    } else {
+        OsBufFullWrite(buf, logLen);
+    }
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+
+    return LOS_OK;
+}
+
+VOID OsLogShow(VOID)
+{
+    UINT32 intSave;
+    UINT32 index;
+    UINT32 i = 0;
+    CHAR *p = NULL;
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    index = g_dmesgInfo->logHead;
+    p = (CHAR *)malloc(g_dmesgInfo->logSize + 1);
+    if (p == NULL) {
+        LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+        return;
+    }
+    (VOID)memset_s(p, g_dmesgInfo->logSize + 1, 0, g_dmesgInfo->logSize + 1);
+
+    while (i < g_dmesgInfo->logSize) {
+        *(p + i) = *(g_dmesgInfo->logBuf + index++);
+        if (index > BUF_MAX_INDEX) {
+            index = 0;
+        }
+        i++;
+        if (index == g_dmesgInfo->logTail) {
+            break;
+        }
+    }
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+    UartPuts(p, i, UART_WITH_LOCK);
+    free(p);
+}
+
+STATIC INT32 OsDmesgLvSet(const CHAR *level)
+{
+    UINT32 levelNum, ret;
+    CHAR *p = NULL;
+
+    levelNum = strtoul(level, &p, 0);
+    if (*p != 0) {
+        PRINTK("dmesg: invalid option or parameter.\n");
+        return -1;
+    }
+
+    ret = LOS_DmesgLvSet(levelNum);
+    if (ret == LOS_OK) {
+        PRINTK("Set current dmesg log level %s\n", g_levelString[g_dmesgLogLevel]);
+        return LOS_OK;
+    } else {
+        PRINTK("current dmesg log level %s\n", g_levelString[g_dmesgLogLevel]);
+        PRINTK("dmesg -l [num] can access as 0:EMG 1:COMMOM 2:ERROR 3:WARN 4:INFO 5:DEBUG\n");
+        return -1;
+    }
+}
+
+STATIC INT32 OsDmesgMemSizeSet(const CHAR *size)
+{
+    UINT32 sizeVal;
+    CHAR *p = NULL;
+
+    sizeVal = strtoul(size, &p, 0);
+    if (!(LOS_DmesgMemSet(NULL, sizeVal))) {
+        PRINTK("Set dmesg buf size %u success\n", sizeVal);
+        return LOS_OK;
+    } else {
+        PRINTK("Set dmesg buf size %u fail\n", sizeVal);
+        return LOS_NOK;
+    }
+}
+UINT32 OsDmesgLvGet(VOID)
+{
+    return g_dmesgLogLevel;
+}
+
+UINT32 LOS_DmesgLvSet(UINT32 level)
+{
+    if (level > 5) { /* 5: count of level */
+        return LOS_NOK;
+    }
+
+    g_dmesgLogLevel = level;
+    return LOS_OK;
+}
+
+VOID LOS_DmesgClear(VOID)
+{
+    UINT32 intSave;
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    (VOID)memset_s(g_dmesgInfo->logBuf, g_logBufSize, 0, g_logBufSize);
+    g_dmesgInfo->logHead = 0;
+    g_dmesgInfo->logTail = 0;
+    g_dmesgInfo->logSize = 0;
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+}
+
+UINT32 LOS_DmesgMemSet(VOID *addr, UINT32 size)
+{
+    UINT32 ret;
+
+    if (addr == NULL) {
+        ret = OsDmesgChangeSize(size);
+    } else {
+        ret = OsDmesgResetMem(addr, size);
+    }
+    return ret;
+}
+
+INT32 LOS_DmesgRead(CHAR *buf, UINT32 len)
+{
+    INT32 ret;
+    UINT32 intSave;
+
+    if (buf == NULL) {
+        return -1;
+    }
+    if (len == 0) {
+        return 0;
+    }
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    ret = OsDmesgRead(buf, len);
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+    return ret;
+}
+
+INT32 OsDmesgWrite2File(const CHAR *fullpath, const CHAR *buf, UINT32 logSize)
+{
+    INT32 ret;
+
+    INT32 fd = open(fullpath, O_CREAT | O_RDWR | O_APPEND, 0644); /* 0644:file right */
+    if (fd < 0) {
+        return -1;
+    }
+    ret = write(fd, buf, logSize);
+    (VOID)close(fd);
+    return ret;
+}
+
+#ifdef LOSCFG_FS_VFS
+INT32 LOS_DmesgToFile(CHAR *filename)
+{
+    CHAR *fullpath = NULL;
+    CHAR *buf = NULL;
+    INT32 ret;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirectory();
+    UINT32 logSize, bufSize, head, tail, intSave;
+    CHAR *logBuf = NULL;
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    if (OsCheckError()) {
+        LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+        return -1;
+    }
+    logSize = g_dmesgInfo->logSize;
+    bufSize = g_logBufSize;
+    head = g_dmesgInfo->logHead;
+    tail = g_dmesgInfo->logTail;
+    logBuf = g_dmesgInfo->logBuf;
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+
+    ret = vfs_normalize_path(shellWorkingDirectory, filename, &fullpath);
+    if (ret != 0) {
+        return -1;
+    }
+
+    buf = (CHAR *)malloc(logSize);
+    if (buf == NULL) {
+        goto ERR_OUT2;
+    }
+
+    if (head < tail) {
+        ret = memcpy_s(buf, logSize, logBuf + head, logSize);
+        if (ret != EOK) {
+            goto ERR_OUT3;
+        }
+    } else {
+        ret = memcpy_s(buf, logSize, logBuf + head, bufSize - head);
+        if (ret != EOK) {
+            goto ERR_OUT3;
+        }
+        ret = memcpy_s(buf + bufSize - head, logSize - (bufSize - head), logBuf, tail);
+        if (ret != EOK) {
+            goto ERR_OUT3;
+        }
+    }
+
+    ret = OsDmesgWrite2File(fullpath, buf, logSize);
+ERR_OUT3:
+    free(buf);
+ERR_OUT2:
+    free(fullpath);
+    return ret;
+}
+#else
+INT32 LOS_DmesgToFile(CHAR *filename)
+{
+    (VOID)filename;
+    PRINTK("File operation need VFS\n");
+    return -1;
+}
+#endif
+
+INT32 OsShellCmdDmesg(INT32 argc, const CHAR **argv)
+{
+    if (argc == 1) {
+        PRINTK("\n");
+        OsLogShow();
+        return LOS_OK;
+    } else if (argc == 2) { /* 2: count of parameters */
+        if (!strcmp(argv[1], "-c")) {
+            PRINTK("\n");
+            OsLogShow();
+            LOS_DmesgClear();
+            return LOS_OK;
+        } else if (!strcmp(argv[1], "-C")) {
+            LOS_DmesgClear();
+            return LOS_OK;
+        } else if (!strcmp(argv[1], "-D")) {
+            OsLockConsole();
+            return LOS_OK;
+        } else if (!strcmp(argv[1], "-E")) {
+            OsUnlockConsole();
+            return LOS_OK;
+        } else if (!strcmp(argv[1], "-L")) {
+            OsLockUart();
+            return LOS_OK;
+        } else if (!strcmp(argv[1], "-U")) {
+            OsUnlockUart();
+            return LOS_OK;
+        }
+    } else if (argc == 3) { /* 3: count of parameters */
+        if (!strcmp(argv[1], ">")) {
+            if (LOS_DmesgToFile((CHAR *)argv[2]) < 0) { /* 2:index of parameters */
+                PRINTK("Dmesg write log to %s fail \n", argv[2]); /* 2:index of parameters */
+                return -1;
+            } else {
+                PRINTK("Dmesg write log to %s success \n", argv[2]); /* 2:index of parameters */
+                return LOS_OK;
+            }
+        } else if (!strcmp(argv[1], "-l")) {
+            return OsDmesgLvSet(argv[2]); /* 2:index of parameters */
+        } else if (!strcmp(argv[1], "-s")) {
+            return OsDmesgMemSizeSet(argv[2]); /* 2:index of parameters */
+        }
+    }
+
+    PRINTK("dmesg: invalid option or parameter.\n");
+    return -1;
+}
+
+SHELLCMD_ENTRY(dmesg_shellcmd, CMD_TYPE_STD, "dmesg", XARGS, (CmdCallBackFunc)OsShellCmdDmesg);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+#endif /* LOSCFG_SHELL_DMESG */
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Exception Information Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "los_memory.h"
+#include "shcmd.h"
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+#include "los_exc_pri.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+INT32 OsShellCmdReadExcInfo(INT32 argc, const CHAR **argv)
+{
+    LogReadWriteFunc hook = NULL;
+    UINT32 recordSpace = OsGetExcInfoLen();
+
+    (VOID)argc;
+    (VOID)argv;
+
+    CHAR *buf = (CHAR*)LOS_MemAlloc((void *)OS_SYS_MEM_ADDR, recordSpace + 1);
+    if (buf == NULL) {
+        return LOS_NOK;
+    }
+    (void)memset_s(buf, recordSpace + 1, 0, recordSpace + 1);
+
+    hook = OsGetExcInfoRW();
+    if (hook != NULL) {
+        hook(OsGetExcInfoDumpAddr(), recordSpace, 1, buf);
+    }
+    PRINTK("%s\n", buf);
+    (VOID)LOS_MemFree((void *)OS_SYS_MEM_ADDR, buf);
+    buf = NULL;
+    return LOS_OK;
+}
+SHELLCMD_ENTRY(readExcInfo_shellcmd, CMD_TYPE_EX, "excInfo", 0, (CmdCallBackFunc)OsShellCmdReadExcInfo);
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+#endif
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Watch Command Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "unistd.h"
+#include "stdio.h"
+#include "securec.h"
+#include "los_event.h"
+#if defined(__LP64__)
+#define  timeval64      timeval
+#define  gettimeofday64 gettimeofday
+#define  ctime64        ctime
+#include "sys/time.h"
+#else
+#include "time64.h"
+#endif
+#include "shcmd.h"
+#include "shmsg.h"
+
+typedef struct {
+    BOOL title; /* whether to hide the timestamps */
+    UINT32 count; /* the total number of command executions */
+    UINT32 interval; /* running cycle of the command */
+    EVENT_CB_S watchEvent; /* event handle of the watch structure */
+    CHAR cmdBuf[CMD_MAX_LEN]; /* the command to watch */
+} WatchCB;
+
+STATIC WatchCB *g_watchCmd;
+
+#define WATCH_COUNT_MAX 0xFFFFFF
+#define WATCH_INTETVAL_MAX 0xFFFFFF
+#define WATCH_EVENT_MASK 0x01U
+
+STATIC VOID PrintTime(VOID)
+{
+    struct timeval64 nowTime = {0};
+
+    if (gettimeofday64(&nowTime, NULL) == 0) {
+        PRINTK("%s", ctime64(&nowTime.tv_sec));
+    }
+}
+
+STATIC VOID OsShellCmdDoWatch(VOID *arg1)
+{
+    WatchCB *watchItem = (WatchCB *)arg1;
+    UINT32 ret;
+    g_watchCmd = watchItem;
+
+    while (watchItem->count--) {
+        PRINTK("\033[2J\n");
+        if (watchItem->title) {
+            PrintTime();
+        }
+        (VOID)ShellMsgParse(watchItem->cmdBuf);
+        ret = LOS_EventRead(&watchItem->watchEvent, WATCH_EVENT_MASK,
+                            LOS_WAITMODE_OR | LOS_WAITMODE_CLR, watchItem->interval);
+        if (ret == WATCH_EVENT_MASK) {
+            break;
+        }
+    }
+
+    (VOID)LOS_EventDestroy(&watchItem->watchEvent);
+    free(g_watchCmd);
+    g_watchCmd = NULL;
+    PRINTK("\nHuawei LiteOS # ");
+}
+
+STATIC INLINE VOID OsWatchCmdUsage(VOID)
+{
+    PRINTK("\nUsage: watch\n");
+    PRINTK("watch [options] command\n");
+}
+
+STATIC UINT32 OsWatchOverFunc(VOID)
+{
+    UINT32 ret;
+    if (g_watchCmd != NULL) {
+        ret = LOS_EventWrite(&g_watchCmd->watchEvent, WATCH_EVENT_MASK);
+        if (ret != LOS_OK) {
+            PRINT_ERR("Write event failed in %s,%d\n", __FUNCTION__, __LINE__);
+            return OS_ERROR;
+        }
+        return LOS_OK;
+    } else {
+        PRINTK("No watch task to turn off.\n");
+        return OS_ERROR;
+    }
+}
+
+STATIC INT32 OsWatchOptionParsed(UINT32 argc, UINT32 *argoff, const CHAR **argv, WatchCB *watchItem)
+{
+    long tmpVal;
+    CHAR *strPtr = NULL;
+    UINT32 argCount = argc;
+
+    while (argv[*argoff][0] == '-') {
+        if (argCount <= 1) {
+            OsWatchCmdUsage();
+            return -1;
+        }
+
+        if ((strcmp(argv[*argoff], "-n") == 0) || (strcmp(argv[*argoff], "--interval") == 0)) {
+            if (argCount <= 2) { /* 2:count of parameter */
+                OsWatchCmdUsage();
+                return -1;
+            }
+            tmpVal = (long)strtoul(argv[*argoff + 1], &strPtr, 0);
+            if ((*strPtr != 0) || (tmpVal <= 0) || (tmpVal > WATCH_INTETVAL_MAX)) {
+                PRINTK("\ninterval time is invalid\n");
+                OsWatchCmdUsage();
+                return -1;
+            }
+            watchItem->interval = g_tickPerSecond * (UINT32)tmpVal;
+            argCount -= 2; /* 2:offset of argv */
+            (*argoff) += 2; /* 2:offset of argv */
+        } else if ((strcmp(argv[*argoff], "-t") == 0) || (strcmp(argv[*argoff], "-no-title") == 0)) {
+            watchItem->title = FALSE;
+            argCount--;
+            (*argoff)++;
+        } else if ((strcmp(argv[*argoff], "-c") == 0) || (strcmp(argv[*argoff], "--count") == 0)) {
+            if (argCount <= 2) { /* 2:count of parameter */
+                OsWatchCmdUsage();
+                return -1;
+            }
+            tmpVal = (long)strtoul(argv[*argoff + 1], &strPtr, 0);
+            if ((*strPtr != 0) || (tmpVal <= 0) || (tmpVal > WATCH_COUNT_MAX)) {
+                PRINTK("\ncount is invalid\n");
+                OsWatchCmdUsage();
+                return -1;
+            }
+            watchItem->count = (UINT32)tmpVal;
+            argCount -= 2; /* 2:offset of argv */
+            (*argoff) += 2; /* 2:offset of argv */
+        } else {
+            PRINTK("Unknown option.\n");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+STATIC INT32 OsWatchCmdSplice(UINT32 argc, UINT32 argoff, const CHAR **argv, WatchCB *watchItem)
+{
+    INT32 err = 0;
+    if ((argc - argoff) == 0) {
+        PRINT_ERR("no watch command!\n");
+        return -1;
+    }
+    while (argc - argoff) {
+        err = strcat_s(watchItem->cmdBuf, sizeof(watchItem->cmdBuf), argv[argoff]);
+        if (err != EOK) {
+            PRINT_ERR("%s, %d strcat_s failed!\n", __FUNCTION__, __LINE__);
+            return -1;
+        }
+        err = strcat_s(watchItem->cmdBuf, sizeof(watchItem->cmdBuf), " ");
+        if (err != EOK) {
+            PRINT_ERR("%s, %d strcat_s failed!\n", __FUNCTION__, __LINE__);
+            return -1;
+        }
+        argoff++;
+    }
+    return err;
+}
+
+STATIC UINT32 OsWatchTaskCreate(WatchCB *watchItem)
+{
+    TSK_INIT_PARAM_S initParam = {0};
+    UINT32 watchTaskId = 0;
+    UINT32 ret;
+
+    ret = LOS_EventInit(&watchItem->watchEvent);
+    if (ret != 0) {
+        PRINT_ERR("Watch event init failed in %s, %d\n", __FUNCTION__, __LINE__);
+        return ret;
+    }
+
+    initParam.pfnTaskEntry = (TSK_ENTRY_FUNC)OsShellCmdDoWatch;
+    initParam.usTaskPrio   = 10; /* 10:shellcmd_watch task priority */
+    initParam.uwStackSize  = 0x3000; /* 0x3000:stack size of shellcmd_watch task */
+    initParam.pcName       = "shellcmd_watch";
+    initParam.uwResved     = LOS_TASK_STATUS_DETACHED;
+    LOS_TASK_PARAM_INIT_ARG(initParam, watchItem);
+
+    ret = LOS_TaskCreate(&watchTaskId, &initParam);
+    if (ret != 0) {
+        PRINT_ERR("Watch task init failed in %s, %d\n", __FUNCTION__, __LINE__);
+        return ret;
+    }
+    return ret;
+}
+
+UINT32 OsShellCmdWatch(UINT32 argc, const CHAR **argv)
+{
+    WatchCB *watchItem = NULL;
+    UINT32 argoff = 0;
+    UINT32 ret;
+    INT32 err;
+
+    if (argc == 0) {
+        OsWatchCmdUsage();
+        return OS_ERROR;
+    }
+
+    if ((argc == 1) && (strcmp(argv[0], "--over") == 0)) {
+        ret = OsWatchOverFunc();
+        return ret;
+    }
+
+    if (g_watchCmd != NULL) {
+        PRINTK("Please turn off previous watch before to start a new watch.\n");
+        return OS_ERROR;
+    }
+
+    watchItem = (WatchCB *)malloc(sizeof(WatchCB));
+    if (watchItem == NULL) {
+        PRINTK("Malloc error!\n");
+        return OS_ERROR;
+    }
+    (VOID)memset_s(watchItem, sizeof(WatchCB), 0, sizeof(WatchCB));
+    watchItem->title = TRUE;
+    watchItem->count = WATCH_COUNT_MAX;
+    watchItem->interval = g_tickPerSecond;
+
+    err = OsWatchOptionParsed(argc, &argoff, argv, watchItem);
+    if (err != 0) {
+        goto WATCH_ERROR;
+    }
+
+    err = OsWatchCmdSplice(argc, argoff, argv, watchItem);
+    if (err != 0) {
+        goto WATCH_ERROR;
+    }
+
+    ret = OsWatchTaskCreate(watchItem);
+    if (ret != 0) {
+        goto WATCH_ERROR;
+    }
+
+    return LOS_OK;
+
+WATCH_ERROR:
+    free(watchItem);
+    return OS_ERROR;
+}
+
+SHELLCMD_ENTRY(watch_shellcmd, CMD_TYPE_EX, "watch", XARGS, (CmdCallBackFunc)OsShellCmdWatch);
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Shell Help Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "shcmd.h"
+#include "shell_pri.h"
+
+UINT32 OsShellCmdHelp(UINT32 argc, const CHAR **argv)
+{
+    UINT32 loop = 0;
+    CmdItemNode *curCmdItem = NULL;
+    CmdModInfo *cmdInfo = OsCmdInfoGet();
+
+    (VOID)argv;
+    if (argc > 0) {
+        PRINTK("\nUsage: help\n");
+        return OS_ERROR;
+    }
+
+    PRINTK("*******************shell commands:*************************\n");
+    LOS_DL_LIST_FOR_EACH_ENTRY(curCmdItem, &cmdInfo->cmdList.list, CmdItemNode, list) {
+        if ((loop & (8 - 1)) == 0) { /* 8 - 1:just align print */
+            PRINTK("\n");
+        }
+        PRINTK("%-12s  ", curCmdItem->cmd->cmdKey);
+
+        loop++;
+    }
+
+    PRINTK("\n");
+    return 0;
+}
+
+SHELLCMD_ENTRY(help_shellcmd, CMD_TYPE_EX, "help", 0, (CmdCallBackFunc)OsShellCmdHelp);
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Date command Implementation File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
+#include "stdlib.h"
+#include "sys/stat.h"
+#include "securec.h"
+#include "los_typedef.h"
+#ifdef LOSCFG_FS_VFS
+#include "inode/inode.h"
+#endif
+#include "shcmd.h"
+#include "shell.h"
+
+#if defined(__LP64__)
+#define  timeval64      timeval
+#define  settimeofday64 settimeofday
+#define  gettimeofday64 gettimeofday
+#define  localtime64    localtime
+#define  ctime64        ctime
+#define  mktime64       mktime
+#include "sys/time.h"
+#else
+#include "time64.h"
+#endif
+
+#define  DATE_ERR_INFO      1
+#define  DATE_HELP_INFO     0
+#define  DATE_ERR           (-1)
+#define  DATE_OK            0
+#define  DATE_BASE_YEAR     1900
+#define  LEAPYEAR(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
+
+STATIC const INT32 g_monLengths[2][12] = { /* 2: 2 Column,Contains leap year; 12: 12 months */
+    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+};
+
+STATIC VOID OsCopyTm(struct tm *destTm, const struct tm *srcTm)
+{
+    if (srcTm == NULL) {
+        (VOID)memset_s(destTm, sizeof(struct tm), 0, sizeof(struct tm));
+    } else {
+        destTm->tm_sec = srcTm->tm_sec;
+        destTm->tm_min = srcTm->tm_min;
+        destTm->tm_hour = srcTm->tm_hour;
+        destTm->tm_mday = srcTm->tm_mday;
+        destTm->tm_mon = srcTm->tm_mon;
+        destTm->tm_year = srcTm->tm_year;
+        destTm->tm_wday = srcTm->tm_wday;
+        destTm->tm_yday = srcTm->tm_yday;
+        destTm->tm_isdst = srcTm->tm_isdst;
+        destTm->tm_gmtoff = srcTm->tm_gmtoff;
+        destTm->tm_zone = srcTm->tm_zone;
+    }
+}
+
+STATIC VOID OsCmdUsageDate(INT32 order)
+{
+    if (order) {
+        PRINTK("date: invalid option or parameter.\n");
+        PRINTK("Try 'date --help' for more information.\n");
+        return;
+    }
+    PRINTK("\nUsage: date [+FORMAT]\n");
+    PRINTK("   or: date [-s] [YY/MM/DD] [hh:mm:ss]\n");
+    PRINTK("Display the current time in the given FORMAT, or set the system date.\n");
+    PRINTK("FORMAT controls the output.  Interpreted sequences are:\n");
+    PRINTK("  %%b     The abbreviated month name according to the current locale.\n");
+    PRINTK("  %%B     The full month name according to the current locale.\n");
+    PRINTK("  %%C     The century number (year/100) as a 2-digit integer. (SU)\n");
+    PRINTK("  %%d     The day of the month as a decimal number (range 01 to 31).\n");
+    PRINTK("  %%e     Like %%d, the day of the month as a decimal number, \n");
+    PRINTK("         but a leading zero is replaced by a space.\n");
+    PRINTK("  %%h     Equivalent to %%b.  (SU)\n");
+    PRINTK("  %%H     The hour as a decimal number using a 24-hour clock (range 00 to 23).\n");
+    PRINTK("  %%I     The hour as a decimal number using a 12-hour clock (range 01 to 12).\n");
+    PRINTK("  %%j     The day of the year as a decimal number (range 001 to 366).\n");
+    PRINTK("  %%k     The hour (24-hour clock) as a decimal number (range  0  to  23); \n");
+    PRINTK("         single digits are preceded by a blank.  (See also %%H.)  (TZ)\n");
+    PRINTK("  %%l     The hour (12-hour  clock) as a decimal number (range 1 to 12); \n");
+    PRINTK("         single digits are preceded by a blank.  (See also %%I.)  (TZ)\n");
+    PRINTK("  %%m     The month as a decimal number (range 01 to 12).\n");
+    PRINTK("  %%M     The minute as a decimal number (range 00 to 59).\n");
+    PRINTK("  %%n     A newline character. (SU)\n");
+    PRINTK("  %%p     Either \"AM\" or \"PM\" according to the given time value, \n");
+    PRINTK("         or the corresponding strings for the current locale.\n");
+    PRINTK("         Noon is treated as \"PM\" and midnight as \"AM\".\n");
+    PRINTK("  %%P     Like %%p but in lowercase: \"am\" or \"pm\" \n");
+    PRINTK("         or a corresponding string for the current locale. (GNU)\n");
+    PRINTK("  %%s     The number of seconds since the Epoch, that is,\n");
+    PRINTK("         since 1970-01-01 00:00:00 UTC. (TZ)\n");
+    PRINTK("  %%S     The second as a decimal number (range 00 to 60).\n");
+    PRINTK("         (The range is up to 60 to allow for occasional leap seconds.)\n");
+    PRINTK("  %%t     A tab character. (SU)\n");
+    PRINTK("  %%y     The year as a decimal number without a century (range 00 to 99).\n");
+    PRINTK("  %%Y     The year as a decimal number including the century.\n");
+    PRINTK("  %%%%     A literal '%%' character.\n");
+    PRINTK("\nExamples:\n");
+    PRINTK("Set system date (2017-01-01)\n");
+    PRINTK("$ date -s 20170101\n");
+    PRINTK("Set system time (12:00:00)\n");
+    PRINTK("$ date -s 12:00:00\n");
+    PRINTK("Show the time with format Year-Month-Day\n");
+    PRINTK("$ date +%%Y-%%m-%%d\n");
+}
+
+STATIC INT32 OsStrToTm(const CHAR *str, struct tm *tm)
+{
+    CHAR *ret = NULL;
+    UINT32 strLen = strlen(str);
+    if (strLen == 8) { /* 8:Time format string length, such as hh:mm:ss or yyyymmdd */
+        if (str[2] == ':') { /* 2:Index of Eigenvalues */
+            ret = strptime(str, "%H:%M:%S", tm);
+        } else {
+            ret = strptime(str, "%Y%m%d", tm);
+        }
+    } else if (strLen == 10) { /* 10:Time format string length,such as yyyy/mm/dd  */
+        ret = strptime(str, "%Y/%m/%d", tm);
+    } else if (strLen == 5) { /* 5:Time format string length,such as hh:mm or mm/dd */
+        if (str[2] == ':') { /* 2:Index of Eigenvalues */
+            ret = strptime(str, "%H:%M", tm);
+        } else if (str[2] == '/') { /* 2:Index of Eigenvalues */
+            ret = strptime(str, "%m/%d", tm);
+        }
+    } else if (strLen == 7) { /* 7:Time format string length,such as yyyy/mm */
+        if (str[4] == '/') { /* 4:Index of Eigenvalues */
+            ret = strptime(str, "%Y/%m", tm);
+        }
+    }
+
+    if (tm->tm_year < 70) { /* 70:the year is starting in 1970,tm_year must be greater than 70 */
+        PRINTK("\nUsage: date -s set system time range from 1970.\n");
+        return DATE_ERR;
+    }
+
+    if (tm->tm_mday > g_monLengths[(INT32)LEAPYEAR(tm->tm_year + DATE_BASE_YEAR)][tm->tm_mon]) {
+        return DATE_ERR;
+    }
+
+    if ((tm->tm_sec < 0) || (tm->tm_sec > 59)) { /* Seconds (0-59), leap seconds shall not be used when set time. */
+        return DATE_ERR;
+    }
+    return (ret == NULL) ? DATE_ERR : DATE_OK;
+}
+
+STATIC INT32 OsFormatPrintTime(const CHAR *formatStr)
+{
+    CHAR timebuf[SHOW_MAX_LEN] = {0};
+    struct tm *tm = NULL;
+    struct timeval64 nowTime = {0};
+
+    if (strlen(formatStr) < 2) { /* 2:check format string length */
+        OsCmdUsageDate(DATE_ERR_INFO);
+        return DATE_ERR;
+    }
+
+    if (gettimeofday64(&nowTime, NULL)) {
+        return DATE_ERR;
+    }
+    tm = localtime64(&nowTime.tv_sec);
+    if (tm == NULL) {
+        return DATE_ERR;
+    }
+
+    if (strftime(timebuf, SHOW_MAX_LEN - 1, formatStr + 1, tm)) {
+        PRINTK("%s\n", timebuf);
+    } else {
+        OsCmdUsageDate(DATE_ERR_INFO);
+        return DATE_ERR;
+    }
+    return DATE_OK;
+}
+
+STATIC INT32 OsDateSetTime(const CHAR *timeStr)
+{
+    struct tm tm = {0};
+    struct timeval64 nowTime = {0};
+    struct timeval64 setTime = {0};
+
+    if (gettimeofday64(&nowTime, NULL)) {
+        PRINTK("settime failed...\n");
+        return DATE_ERR;
+    }
+
+    setTime.tv_usec = nowTime.tv_usec;
+    OsCopyTm(&tm, localtime64(&nowTime.tv_sec));
+
+    if (OsStrToTm(timeStr, &tm)) {
+        OsCmdUsageDate(DATE_ERR_INFO);
+        return DATE_ERR;
+    }
+
+    setTime.tv_sec = mktime64(&tm);
+    if (setTime.tv_sec == -1) {
+        PRINTK("mktime failed...\n");
+        return DATE_ERR;
+    }
+
+    if (settimeofday64(&setTime, NULL)) {
+        PRINTK("settime failed...\n");
+        return DATE_ERR;
+    }
+
+    return DATE_OK;
+}
+
+#ifdef  LOSCFG_FS_VFS
+STATIC INT32 OsViewFileTime(const CHAR *filename)
+{
+#define BUFFER_SIZE 26 /* The buffer size is equal to the size used by the asctime_r interface */
+    struct stat statBuf = {0};
+    CHAR *fullpath = NULL;
+    INT32 ret;
+    CHAR buf[BUFFER_SIZE];
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirectory();
+
+    ret = vfs_normalize_path(shellWorkingDirectory, filename, &fullpath);
+    if (ret < 0) {
+        set_errno(-ret);
+        perror("date error");
+        return DATE_ERR;
+    }
+
+    if (stat(fullpath, &statBuf) != 0) {
+        OsCmdUsageDate(DATE_ERR_INFO);
+        free(fullpath);
+        return DATE_ERR;
+    }
+    PRINTK("%s\n", ctime_r(&statBuf.st_mtim.tv_sec, buf));
+    free(fullpath);
+    return DATE_OK;
+}
+#endif
+
+INT32 OsShellCmdDate(INT32 argc, const CHAR **argv)
+{
+    struct timeval64 nowTime = {0};
+
+    if (argc == 1) { /* 1:count of parameters */
+        if (gettimeofday64(&nowTime, NULL)) {
+            return DATE_ERR;
+        }
+        PRINTK("%s\n", ctime64(&nowTime.tv_sec));
+        return DATE_OK;
+    }
+
+    if (argc == 2) { /* 2:count of parameters */
+        if (!(strcmp(argv[1], "--help"))) {
+            OsCmdUsageDate(DATE_HELP_INFO);
+            return DATE_OK;
+        }
+        if (!(strncmp(argv[1], "+", 1))) {
+            return OsFormatPrintTime(argv[1]);
+        }
+    }
+
+    if (argc > 2) { /* 2:count of parameters */
+        if (!(strcmp(argv[1], "-s"))) {
+            return OsDateSetTime(argv[2]); /* 2:index of parameters */
+        }
+#ifdef  LOSCFG_FS_VFS
+        else if (!(strcmp(argv[1], "-r"))) {
+            return OsViewFileTime(argv[2]); /* 2:index of parameters */
+        }
+#endif
+    }
+
+    OsCmdUsageDate(DATE_ERR_INFO);
+    return DATE_OK;
+}
+
+SHELLCMD_ENTRY(date_shellcmd, CMD_TYPE_STD, "date", XARGS, (CmdCallBackFunc)OsShellCmdDate);
