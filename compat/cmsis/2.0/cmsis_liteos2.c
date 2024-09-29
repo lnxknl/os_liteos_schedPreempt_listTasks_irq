@@ -70,7 +70,7 @@ static const osVersion_t g_losVersion = {20010016, 20010016};
 static osKernelState_t g_kernelState = osKernelInactive;
 
 //  ==== Kernel Management Functions ====
-osStatus_t osKernelInitialize(void)
+osStatus_t osKernelInitialize(void)// @NOTE 
 {
     if (OS_INT_ACTIVE) {
         return osErrorISR;
@@ -122,7 +122,7 @@ osKernelState_t osKernelGetState(void)
     }
 }
 
-osStatus_t osKernelStart(void)
+osStatus_t osKernelStart(void)// @NOTE 
 {
     if (OS_INT_ACTIVE) {
         return osErrorISR;
@@ -212,7 +212,7 @@ int32_t osKernelRestoreLock(int32_t lock)
 
 uint64_t osKernelGetTickCount(void)
 {
-    return (uint64_t)LOS_TickCountGet();
+    return (uint64_t)LOS_TickCountGet();// @NOTE 
 }
 
 uint64_t osKernelGetTick2ms(void)

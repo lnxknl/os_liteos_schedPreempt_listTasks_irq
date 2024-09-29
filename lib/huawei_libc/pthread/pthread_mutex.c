@@ -358,7 +358,7 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
     return OsMuxPostForPosix(mutex);
 }
 
-STATIC VOID OsMuxBitmapSet(const pthread_mutex_t *mutex, const LosTaskCB *runTask, const MuxBaseCB *muxPended)
+STATIC VOID OsMuxBitmapSet(const pthread_mutex_t *mutex, const LosTaskCB *runTask, const MuxBaseCB *muxPended)// @NOTE 
 {
     if ((muxPended->owner->priority > runTask->priority) &&
         (mutex->stAttr.protocol == PTHREAD_PRIO_INHERIT)) {

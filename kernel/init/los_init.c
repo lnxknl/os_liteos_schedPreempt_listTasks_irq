@@ -101,7 +101,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-LITE_OS_SEC_TEXT_INIT static VOID OsRegister(VOID)
+LITE_OS_SEC_TEXT_INIT static VOID OsRegister(VOID)// @NOTE 
 {
 #ifdef LOSCFG_LIB_CONFIGURABLE
     g_osSysClock            = OS_SYS_CLOCK_CONFIG;
@@ -184,7 +184,7 @@ LITE_OS_SEC_TEXT_INIT STATIC UINT32 OsIpcInit(VOID)
 }
 
 
-LITE_OS_SEC_TEXT_INIT UINT32 OsMain(VOID)
+LITE_OS_SEC_TEXT_INIT UINT32 OsMain(VOID)// @NOTE 
 {
     UINT32 ret;
 
@@ -200,7 +200,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMain(VOID)
         return ret;
     }
 
-    OsRegister();
+    OsRegister();// @NOTE 
 
 #ifdef LOSCFG_SHELL_LK
     OsLkLoggerInit(NULL);
@@ -228,7 +228,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMain(VOID)
     uart_hwiCreate();
 #endif /* LOSCFG_SHELL */
 #endif /* LOSCFG_PLATFORM_UART_WITHOUT_VFS */
-    ret = OsTaskInit();
+    ret = OsTaskInit();// @NOTE 
     if (ret != LOS_OK) {
         PRINT_ERR("OsTaskInit error\n");
         return ret;

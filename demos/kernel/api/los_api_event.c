@@ -50,7 +50,7 @@ static EVENT_CB_S  g_exampleEvent;
 #define EVENT_WAIT 0x00000001
 
 /* example task entry function */
-VOID Example_Event(VOID)
+VOID Example_Event(VOID)// @NOTE 
 {
     UINT32 event;
     UINT32 ret;
@@ -78,7 +78,7 @@ VOID Example_Event(VOID)
     return;
 }
 
-UINT32 Example_SndRcvEvent(VOID)
+UINT32 Example_SndRcvEvent(VOID)// @NOTE 
 {
     UINT32 ret;
     TSK_INIT_PARAM_S stTask1;

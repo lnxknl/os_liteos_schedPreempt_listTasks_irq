@@ -49,7 +49,7 @@ LITE_OS_SEC_DATA_VEC HWI_PROC_FUNC g_hwiVec[LOSCFG_PLATFORM_HWI_LIMIT] = {
     (HWI_PROC_FUNC)Reset_Handler, /* [1] reset */
     (HWI_PROC_FUNC)IrqEntryV7M,   /* [2] NMI Handler */
     (HWI_PROC_FUNC)IrqEntryV7M,   /* [3] Hard Fault Handler */
-    (HWI_PROC_FUNC)IrqEntryV7M,   /* [4] MPU Fault Handler */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [4] MPU Fault Handler */// @NOTE 
     (HWI_PROC_FUNC)IrqEntryV7M,   /* [5] Bus Fault Handler */
     (HWI_PROC_FUNC)IrqEntryV7M,   /* [6] Usage Fault Handler */
     (HWI_PROC_FUNC)0,             /* [7] Reserved */
@@ -64,7 +64,7 @@ LITE_OS_SEC_DATA_VEC HWI_PROC_FUNC g_hwiVec[LOSCFG_PLATFORM_HWI_LIMIT] = {
 };
 
 
-LITE_OS_SEC_TEXT_MINOR VOID IrqEntryV7M(VOID)
+LITE_OS_SEC_TEXT_MINOR VOID IrqEntryV7M(VOID)// @NOTE 
 {
     UINT32 hwiIndex;
 
@@ -86,7 +86,7 @@ LITE_OS_SEC_TEXT_MINOR VOID IrqEntryV7M(VOID)
 #endif
 
     if (OsTaskProcSignal() != 0) {
-        OsSchedPreempt();
+        OsSchedPreempt();// @NOTE 
     }
 }
 

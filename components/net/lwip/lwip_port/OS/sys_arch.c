@@ -400,8 +400,8 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
     task.uwStackSize = stacksize;
     task.pcName = (char *)name;
     task.usTaskPrio = prio;
-    task.auwArgs[0] = (UINTPTR)arg;
-    ret = LOS_TaskCreate(&taskid, &task);
+    task.auwArgs[0] = (UINTPTR)arg;// @NOTE 
+    ret = LOS_TaskCreate(&taskid, &task);// @NOTE 
 
     if (LOS_OK != ret) {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_thread_new: LOS_TaskCreate error %u\n", (unsigned int)ret));

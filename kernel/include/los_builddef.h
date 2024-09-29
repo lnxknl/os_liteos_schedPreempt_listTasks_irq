@@ -77,7 +77,7 @@ extern "C" {
 #endif
 
 #ifndef LITE_OS_SEC_BSS
-#define LITE_OS_SEC_BSS         /* __attribute__((section(".bss.sram"))) */
+#define LITE_OS_SEC_BSS         /* __attribute__((section(".bss.sram"))) */// @NOTE 
 #endif
 
 #ifndef LITE_OS_SEC_BSS_MINOR

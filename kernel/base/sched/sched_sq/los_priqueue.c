@@ -44,7 +44,7 @@ extern "C" {
 LITE_OS_SEC_BSS LOS_DL_LIST *g_priQueueList = NULL;
 STATIC LITE_OS_SEC_BSS UINT32 g_priQueueBitmap;
 
-UINT32 OsPriQueueInit(VOID)
+UINT32 OsPriQueueInit(VOID)// @NOTE 
 {
     UINT32 priority;
 
@@ -61,7 +61,7 @@ UINT32 OsPriQueueInit(VOID)
     return LOS_OK;
 }
 
-VOID OsPriQueueEnqueueHead(LOS_DL_LIST *priqueueItem, UINT32 priority)
+VOID OsPriQueueEnqueueHead(LOS_DL_LIST *priqueueItem, UINT32 priority)// @NOTE 
 {
     /*
      * Task control blocks are initd as zero. And when task is deleted,

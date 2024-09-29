@@ -46,7 +46,7 @@ extern "C" {
  * @ingroup los_list
  * Structure of a node in a doubly linked list.
  */
-typedef struct LOS_DL_LIST {
+typedef struct LOS_DL_LIST {// @NOTE 
     struct LOS_DL_LIST *pstPrev; /**< Current node's pointer to the previous node */
     struct LOS_DL_LIST *pstNext; /**< Current node's pointer to the next node */
 } LOS_DL_LIST;
@@ -92,7 +92,7 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListInit(LOS_DL_LIST *list)
  * @see LOS_DL_LIST_LAST
  * @since Huawei LiteOS V100R001C00
  */
-#define LOS_DL_LIST_FIRST(object) ((object)->pstNext)
+#define LOS_DL_LIST_FIRST(object) ((object)->pstNext)// @NOTE 
 
 /**
  * @ingroup los_list
@@ -131,7 +131,7 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListInit(LOS_DL_LIST *list)
  * @see LOS_ListDelete | LOS_ListTailInsert | LOS_ListHeadInsert
  * @since Huawei LiteOS V100R001C00
  */
-LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListAdd(LOS_DL_LIST *list, LOS_DL_LIST *node)
+LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListAdd(LOS_DL_LIST *list, LOS_DL_LIST *node)// @NOTE 
 {
     node->pstNext = list->pstNext;
     node->pstPrev = list;

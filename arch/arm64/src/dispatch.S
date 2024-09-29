@@ -211,7 +211,7 @@
 /*
  * x0: pstNewTask
  */
-OsStartToRun:
+OsStartToRun:// @NOTE 
     msr     daifset, #3
 
     ldr     x2, [x0, #8]
@@ -229,7 +229,7 @@ OsStartToRun:
  * x0: pstNewTask
  * x1: pstRunTask
  */
-OsTaskSchedule:
+OsTaskSchedule:// @NOTE 
     PUSH_AARCH64
 
 #ifdef LOSCFG_AARCH64_FPU
@@ -241,8 +241,8 @@ OsTaskSchedule:
     /* store sp on running task */
     mov     x2, sp
     str     x2, [x1]
-
-OsTaskContextLoad:
+// @NOTE 
+OsTaskContextLoad:// @NOTE 
     /* clear the flag of ldrex */
     clrex
 
@@ -250,7 +250,7 @@ OsTaskContextLoad:
     ldr     x2, [x0]
     mov     sp, x2
 
-osThrdContextLoad:
+osThrdContextLoad:// @NOTE 
 #ifdef LOSCFG_AARCH64_FPU
     FPU_POP_REGS
 #endif
@@ -304,7 +304,7 @@ _osExceptIrqHdl:
     sub     x9, x9, x7
     mov     sp, x9
 
-ALREADY_IRQ_SP:
+ALREADY_IRQ_SP:// @NOTE 
 #endif
 
     /* call interrupt entry */
@@ -322,11 +322,11 @@ ALREADY_IRQ_SP:
 #endif
 
     /* process pending signals */
-    bl      OsTaskProcSignal
+    bl      OsTaskProcSignal// @NOTE 
 
     /* check if needs to schedule */
     cbz     w0, exit
-    bl      OsSchedPreempt
+    bl      OsSchedPreempt// @NOTE 
 
 exit:
     IRQ_POP_REGS

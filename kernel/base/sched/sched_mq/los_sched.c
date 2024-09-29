@@ -62,7 +62,7 @@ typedef struct {
 /* priority queue per-cpu */
 STATIC PriQueue g_priqueue[LOSCFG_KERNEL_CORE_NUM];
 
-STATIC UINT32 g_activeCpu = LOSCFG_KERNEL_CPU_MASK;
+STATIC UINT32 g_activeCpu = LOSCFG_KERNEL_CPU_MASK;// @NOTE 
 
 STATIC INLINE UINT32 OsMpIdleMask(VOID)
 {
@@ -79,7 +79,7 @@ STATIC INLINE VOID OsMpSetActive(UINT32 cpu)
     g_activeCpu |= CPUID_TO_AFFI_MASK(cpu);
 }
 
-VOID OsPriQueueInit(VOID)
+VOID OsPriQueueInit(VOID)// @NOTE 
 {
     LOS_DL_LIST *priQueues = NULL;
     UINT32 priority;
@@ -237,7 +237,7 @@ VOID OsPriQueueDequeue(LOS_DL_LIST *queueNode)
     }
 }
 
-LITE_OS_SEC_TEXT_MINOR LosTaskCB *OsGetTopTask(VOID)
+LITE_OS_SEC_TEXT_MINOR LosTaskCB *OsGetTopTask(VOID)// @NOTE 
 {
     LosTaskCB *newTask = NULL;
     LOS_DL_LIST *priQueues = NULL;
@@ -278,7 +278,7 @@ VOID OsSchedResched(VOID)
     }
 
     runTask = OsCurrTaskGet();
-    newTask = OsGetTopTask();
+    newTask = OsGetTopTask();// @NOTE 
 
     newTask->taskStatus &= ~OS_TASK_STATUS_READY;
 
@@ -333,7 +333,7 @@ VOID OsSchedResched(VOID)
     OsTaskSchedule(newTask, runTask);
 }
 
-VOID OsSchedPreempt(VOID)
+VOID OsSchedPreempt(VOID)// @NOTE 
 {
     LosTaskCB *runTask = NULL;
     UINT32 intSave;
@@ -359,7 +359,7 @@ VOID OsSchedPreempt(VOID)
 #endif
 
     /* reschedule to new thread */
-    OsSchedResched();
+    OsSchedResched();// @NOTE 
 
     SCHEDULER_UNLOCK(intSave);
 }

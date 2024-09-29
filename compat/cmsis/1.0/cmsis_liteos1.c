@@ -61,11 +61,10 @@ extern "C" {
 #define PRIORITY_WIN 4
 
 //  ==== Kernel Control Functions ====
-osStatus osKernelInitialize(void)
-{
+
     UINT32 ret;
 
-    ret = OsMain();
+    ret = OsMain();// @NOTE 
     if (ret == LOS_OK) {
         return osOK;
     } else {
@@ -748,7 +747,7 @@ void *osMailAlloc(osMailQId queue_id, uint32_t millisec)
         return NULL;
     }
 
-    return OsQueueMailAlloc(mailQ->queue, mailQ->pool, LOS_MS2Tick(millisec));
+    return OsQueueMailAlloc(mailQ->queue, mailQ->pool, LOS_MS2Tick(millisec));// @NOTE 
 }
 
 void *osMailCAlloc(osMailQId queue_id, uint32_t millisec)

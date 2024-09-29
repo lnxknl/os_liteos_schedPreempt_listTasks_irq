@@ -160,7 +160,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreateStatic(CHAR *queueName,
 }
 #endif
 
-LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(CHAR *queueName, UINT16 len, UINT32 *queueId,
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(CHAR *queueName, UINT16 len, UINT32 *queueId,// @NOTE 
                                              UINT32 flags, UINT16 maxMsgSize)
 {
     UINT32 ret;
@@ -565,7 +565,7 @@ QUEUE_END:
  *             : timeout  --- Expiry time. The value range is [0,LOS_WAIT_FOREVER]
  * Return      : pointer if success otherwise NULL
  */
-LITE_OS_SEC_TEXT VOID *OsQueueMailAlloc(UINT32 queueId, VOID *mailPool, UINT32 timeout)
+LITE_OS_SEC_TEXT VOID *OsQueueMailAlloc(UINT32 queueId, VOID *mailPool, UINT32 timeout)// @NOTE 
 {
     VOID *mem = NULL;
     LosQueueCB *queueCB = NULL;

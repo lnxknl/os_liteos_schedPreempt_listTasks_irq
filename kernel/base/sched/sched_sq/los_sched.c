@@ -43,7 +43,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-VOID OsSchedResched(VOID)
+VOID OsSchedResched(VOID)// @NOTE 
 {
     LosTaskCB *runTask = NULL;
     LosTaskCB *newTask = NULL;
@@ -108,7 +108,7 @@ VOID OsSchedResched(VOID)
     OsTaskSchedule(newTask, runTask);
 }
 
-VOID OsSchedPreempt(VOID)
+VOID OsSchedPreempt(VOID)// @NOTE 
 {
     LosTaskCB *runTask = NULL;
     UINT32 intSave;
@@ -140,7 +140,7 @@ VOID OsSchedPreempt(VOID)
 }
 
 #ifdef LOSCFG_BASE_CORE_TIMESLICE
-LITE_OS_SEC_TEXT VOID OsTimesliceCheck(VOID)
+LITE_OS_SEC_TEXT VOID OsTimesliceCheck(VOID)// @NOTE 
 {
     LosTaskCB *runTask = OsCurrTaskGet();
     if (runTask->timeSlice != 0) {
